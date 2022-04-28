@@ -1,0 +1,35 @@
+plugins {
+  // Support convention plugins written in Groovy. Convention plugins are build scripts in 'src/main' that automatically become available as plugins in the main build.
+  id 'groovy-gradle-plugin'
+}
+
+// load properties for the build
+Properties properties = new Properties()
+FileInputStream input = new FileInputStream(file("${rootDir.parentFile}/gradle.properties"))
+properties.load(input)
+input.close()
+
+for (String key : properties.stringPropertyNames()) {
+	ext.set(key, properties.getProperty(key))
+}
+
+repositories {
+  mavenCentral()
+  gradlePluginPortal()
+}
+
+dependencies {
+  // id "nebula.node" version "1.4.2"
+  implementation("com.netflix.nebula:nebula-node-plugin:${nebulaNodePluginVersion}")
+  // id "nebula.info" version "10.0.0"
+  implementation("com.netflix.nebula:gradle-info-plugin:${nebulaGradleInfoPluginVersion}")
+  // id "nebula.release" version "15.3.1"
+  // implementation("com.netflix.nebula:nebula-release-plugin:16.+")
+  // id "io.spring.dependency-management" version "1.0.11.RELEASE"
+  implementation("io.spring.gradle:dependency-management-plugin:${springDependencyManagementPluginVersion}")
+  // id "org.sonarqube" version "3.3"
+  implementation("org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:${sonarqubeGradlePluginVersion}")
+  // id "org.springframework.boot" version "2.5.3"
+  implementation("org.springframework.boot:spring-boot-gradle-plugin:${springBootGradlePluginVersion}")
+}
+

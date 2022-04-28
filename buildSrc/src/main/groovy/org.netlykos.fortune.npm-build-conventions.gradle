@@ -1,0 +1,12 @@
+plugins {
+  id 'org.netlykos.fortune.base-conventions'
+  id 'nebula.node'
+}
+
+node {
+  version = nodeVersion
+  npmVersion = npmVersion
+  download = true
+}
+
+jar.dependsOn 'npm_run_build'

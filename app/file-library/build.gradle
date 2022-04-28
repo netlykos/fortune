@@ -1,0 +1,3 @@
+plugins {
+  id "org.netlykos.fortune.java-library-conventions"
+}

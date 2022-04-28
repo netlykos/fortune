@@ -1,0 +1,7 @@
+plugins {
+  // Apply the common convention plugin for shared build configuration between library and application projects.
+  id 'org.netlykos.fortune.java-common-conventions'
+
+  // Apply the spring boot plugin to add support for building spring boot applications
+  id 'org.springframework.boot'
+}

@@ -1,0 +1,12 @@
+plugins {
+  id 'org.netlykos.fortune.npm-build-conventions'
+}
+
+jar {
+  from 'dist/web-app' into 'static'
+}
+
+task serve(type: NpmTask) {
+  // run the npm serve task
+  args = ['run', 'start']
+}

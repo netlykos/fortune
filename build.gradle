@@ -1,0 +1,4 @@
+plugins {
+  // The release plugin needs to in to this section instead of 'src/main/groovy/org.netlykos.barcode.base-conventions.gradle', if we keep it there, the build fails
+  id "nebula.release" version "16.0.0"
+}

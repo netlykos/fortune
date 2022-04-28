@@ -1,0 +1,6 @@
+rootProject.name = 'fortune'
+include 'frontend:web-app',
+  'app:base',
+  'app:file-library',
+  'app:web-api',
+  'app:test-support'
