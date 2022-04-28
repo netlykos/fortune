@@ -4,6 +4,9 @@
 # These are explicitly windows files and should use crlf
 *.bat                                                      text eol=crlf
 
+# These are the struct files and are in a binary format
+app/test-support/src/main/resources/fortune/*.dat          binary
+
 # These files need to be in a unix format
 app/test-support/src/main/resources/fortune/bofh-excuses   text eol=lf
 app/test-support/src/main/resources/fortune/computers      text eol=lf
@@ -44,4 +47,3 @@ app/test-support/src/main/resources/fortune/translate-me   text eol=lf
 app/test-support/src/main/resources/fortune/wisdom         text eol=lf
 app/test-support/src/main/resources/fortune/work           text eol=lf
 app/test-support/src/main/resources/fortune/zippy          text eol=lf
-
