@@ -1,3 +1,9 @@
 plugins {
   id "org.netlykos.fortune.java-library-conventions"
 }
+
+dependencies {
+  implementation project(":app:base")
+  implementation "org.springframework:spring-beans"
+  implementation "org.springframework:spring-context"
+}

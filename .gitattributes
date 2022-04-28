@@ -2,5 +2,46 @@
 # https://help.github.com/articles/dealing-with-line-endings/
 #
 # These are explicitly windows files and should use crlf
-*.bat           text eol=crlf
+*.bat                                                      text eol=crlf
+
+# These files need to be in a unix format
+app/test-support/src/main/resources/fortune/bofh-excuses   text eol=lf
+app/test-support/src/main/resources/fortune/computers      text eol=lf
+app/test-support/src/main/resources/fortune/cookie         text eol=lf
+app/test-support/src/main/resources/fortune/debian         text eol=lf
+app/test-support/src/main/resources/fortune/definitions    text eol=lf
+app/test-support/src/main/resources/fortune/disclaimer     text eol=lf
+app/test-support/src/main/resources/fortune/drugs          text eol=lf
+app/test-support/src/main/resources/fortune/education      text eol=lf
+app/test-support/src/main/resources/fortune/ethnic         text eol=lf
+app/test-support/src/main/resources/fortune/fortunes       text eol=lf
+app/test-support/src/main/resources/fortune/goedel         text eol=lf
+app/test-support/src/main/resources/fortune/humorists      text eol=lf
+app/test-support/src/main/resources/fortune/kids           text eol=lf
+app/test-support/src/main/resources/fortune/law            text eol=lf
+app/test-support/src/main/resources/fortune/linux          text eol=lf
+app/test-support/src/main/resources/fortune/linuxcookie    text eol=lf
+app/test-support/src/main/resources/fortune/literature     text eol=lf
+app/test-support/src/main/resources/fortune/love           text eol=lf
+app/test-support/src/main/resources/fortune/magic          text eol=lf
+app/test-support/src/main/resources/fortune/medicine       text eol=lf
+app/test-support/src/main/resources/fortune/men-women      text eol=lf
+app/test-support/src/main/resources/fortune/miscellaneous  text eol=lf
+app/test-support/src/main/resources/fortune/news           text eol=lf
+app/test-support/src/main/resources/fortune/paradoxum      text eol=lf
+app/test-support/src/main/resources/fortune/people         text eol=lf
+app/test-support/src/main/resources/fortune/perl           text eol=lf
+app/test-support/src/main/resources/fortune/pets           text eol=lf
+app/test-support/src/main/resources/fortune/platitudes     text eol=lf
+app/test-support/src/main/resources/fortune/politics       text eol=lf
+app/test-support/src/main/resources/fortune/riddles        text eol=lf
+app/test-support/src/main/resources/fortune/science        text eol=lf
+app/test-support/src/main/resources/fortune/songs-poems    text eol=lf
+app/test-support/src/main/resources/fortune/sports         text eol=lf
+app/test-support/src/main/resources/fortune/startrek       text eol=lf
+app/test-support/src/main/resources/fortune/tao            text eol=lf
+app/test-support/src/main/resources/fortune/translate-me   text eol=lf
+app/test-support/src/main/resources/fortune/wisdom         text eol=lf
+app/test-support/src/main/resources/fortune/work           text eol=lf
+app/test-support/src/main/resources/fortune/zippy          text eol=lf
 

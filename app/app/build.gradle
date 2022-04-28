@@ -7,6 +7,7 @@ dependencies {
   implementation project(":app:web-api")
   implementation project(":app:file-library")
   implementation project(":frontend:web-app")
+  implementation 'org.springframework.boot:spring-boot-starter'
 
   testImplementation "org.springframework.boot:spring-boot-devtools"
 }

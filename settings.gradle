@@ -1,5 +1,6 @@
 rootProject.name = 'fortune'
 include 'frontend:web-app',
+  'app:app',
   'app:base',
   'app:file-library',
   'app:web-api',
