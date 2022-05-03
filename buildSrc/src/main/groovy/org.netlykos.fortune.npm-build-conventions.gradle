@@ -9,4 +9,4 @@ node {
   download = true
 }
 
-jar.dependsOn 'npm_run_build'
+jar.dependsOn 'yarn_install'

@@ -6,4 +6,5 @@ dependencies {
   implementation project(":app:base")
   implementation "org.springframework:spring-beans"
   implementation "org.springframework:spring-context"
+  implementation "jakarta.annotation:jakarta.annotation-api"
 }

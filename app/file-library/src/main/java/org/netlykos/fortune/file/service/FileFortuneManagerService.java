@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.netlykos.fortune.beans.Fortune;
@@ -44,8 +46,9 @@ public class FileFortuneManagerService implements FortuneManagerService {
   private static final String NEW_LINE = System.getProperty("line.separator");
   private static final String UNIX_NEW_LINE = "\\n";
   private static final String PATH_SEPARATOR = "/";
-  private static final int MAX_BUFFER_SIZE = 4096;
+  private static final int EOF = -1; // end of file marker
   private static final int FORTUNE_PADDING = 3; // every fortune is padded by '\n%\n'
+  private static final int MAX_BUFFER_SIZE = 4096;
 
   @Value("${org.netlykos.fortune.directory:/fortune}")
   String fortuneDirectory;
@@ -53,7 +56,7 @@ public class FileFortuneManagerService implements FortuneManagerService {
   private Map<String, FortuneFileRecord> fortuneResources;
   private List<String> fortunes;
 
-  // @PostConstruct
+  @PostConstruct
   void init() {
     Map<String, FortuneFileRecord> resources = new HashMap<>();
     LOGGER.debug("Looking for data files in {}", fortuneDirectory);
@@ -71,7 +74,7 @@ public class FileFortuneManagerService implements FortuneManagerService {
                 String dataFilePath = format("%s%s%s", fortuneDirectory, PATH_SEPARATOR, cookieName);
                 byte[] structFileContent = getResourceContent(structFilePath);
                 byte[] dataFileContent = getResourceContent(dataFilePath);
-                if (dataFileContent == null || structFileContent == null) {
+                if (!isValidFortuneFiles(dataFileContent, structFileContent)) {
                   LOGGER.warn("Failed to load either data [{}] or structure [{}] file", dataFilePath, structFilePath);
                   continue;
                 }
@@ -154,7 +157,7 @@ public class FileFortuneManagerService implements FortuneManagerService {
     // if we are reading the last record from the data file then read till the end
     // of the file, else read till the next cookie
     int byteOffsetEnd = structFile.fileContent().capacity();
-    if (cookie < records.size()) {
+    if (cookie < structFile.totalRecords()) {
       byteOffsetEnd = records.get(cookie + 1);
     }
     // remove the FORTUNE_PADDING length from the bytes to read
@@ -181,7 +184,7 @@ public class FileFortuneManagerService implements FortuneManagerService {
       int bytesRead = 0;
       // Note: Don't be complacent and use available() - that just tells if the data
       // cannot be read while blocking. You need to check for the eof marker -1
-      while ((bytesRead = inputStream.read(buffer)) != -1) {
+      while ((bytesRead = inputStream.read(buffer)) != EOF) {
         bos.write(buffer, 0, bytesRead);
       }
       return bos.toByteArray();
@@ -204,6 +207,16 @@ public class FileFortuneManagerService implements FortuneManagerService {
     } catch (NoSuchAlgorithmException e) {
       throw new IllegalStateException("Failed to create an instance of SecureRandom.", e);
     }
+  }
+
+  static boolean isValidFortuneFiles(byte[] dataFileContent, byte[] structFileContent) {
+    if (dataFileContent == null) {
+      return false;
+    }
+    if (structFileContent == null) {
+      return false;
+    }
+    return dataFileContent.length > 0 && structFileContent.length > 23 ;
   }
 
 }
