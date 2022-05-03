@@ -3,5 +3,6 @@ plugins {
 }
 
 dependencies {
+  implementation project(":app:base")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
 }
