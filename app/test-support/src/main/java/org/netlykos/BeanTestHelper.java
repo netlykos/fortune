@@ -1,13 +1,10 @@
 package org.netlykos;
 
 import static java.lang.String.format;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -16,12 +13,18 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Month;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -41,14 +44,16 @@ public class BeanTestHelper {
 
   private static final Logger LOGGER = LogManager.getLogger(BeanTestHelper.class);
 
-  public static void testPackage(String packageName) {
+  public static List<Bean> testPackage(String packageName) {
     Set<Class<?>> classesInPackage = findAllClassesUsingClassLoader(packageName);
+    List<Bean> beans = new ArrayList<>();
     LOGGER.trace("Identified {} beans in package {}", classesInPackage.size(), packageName);
     for (Class<?> classz : classesInPackage) {
       if (classz.isRecord()) {
-        testRecordClass(classz);
+        beans.add(createRecord(classz));
       }
     }
+    return Collections.unmodifiableList(beans);
   }
 
   static Set<Class<?>> findAllClassesUsingClassLoader(String packageName) {
@@ -70,50 +75,45 @@ public class BeanTestHelper {
     }
   }
 
-  @SuppressWarnings("squid:S5960")
-  static void testRecordClass(Class<?> classz) {
+  static Bean createRecord(Class<?> classz) {
     Constructor<?>[] constructors = classz.getConstructors();
     LOGGER.trace("Class {} has {} constructors.", classz, constructors.length);
-    if (constructors.length > 1) {
+    if (constructors.length != 1) {
       LOGGER.warn("Record class {} has multiple constructors which is not supported.", classz);
+      return null;
     }
     Constructor<?> constructor = constructors[0];
-    LOGGER.trace(constructor);
-    List<Object> constructorArguments = new ArrayList<>();
+    List<BeanProperty> beanProperties = new ArrayList<>();
     Parameter[] parameters = constructor.getParameters();
-    Map<Method, Object> expected = new HashMap<>();
+    List<Object> constructorArguments = new ArrayList<>();
     for (Parameter parameter : parameters) {
       Type type = parameter.getParameterizedType();
       Class<?> classType = parameter.getType();
       Object value = getValue(classType, type);
       String name = parameter.getName();
-      Method accessorMethod;
-      try {
-        accessorMethod = classz.getMethod(name);
-      } catch (NoSuchMethodException | SecurityException e) {
-        // bugger - for a record there should be a public get method
-        throw new IllegalStateException(e);
-      }
-      expected.put(accessorMethod, value);
-      LOGGER.trace("Parameter [{}] is of type [{}] classType [{}] with name [{}] and value [{}]",
-        parameter, type, classType, name, value);
+      Method getMethod = getMethodWithName(classz, name);
+      beanProperties.add(new BeanProperty(name, classType, getMethod, null, value));
       constructorArguments.add(value);
     }
-    Object objectUnderTest;
+    Object self = createObjectWithArguments(constructor, constructorArguments);
+    LOGGER.debug(self);
+    return new Bean(self, beanProperties);
+  }
+
+  static Method getMethodWithName(Class<?> classz, String name, Class<?>... parameterizedType) {
     try {
-      objectUnderTest = constructor.newInstance(constructorArguments.toArray());
-    } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+      return classz.getMethod(name, parameterizedType);
+    } catch (NoSuchMethodException | SecurityException e) {
+      // bugger - for a record there should be a public get method
       throw new IllegalStateException(e);
     }
-    LOGGER.debug(objectUnderTest);
-    for (Entry<Method, Object> entry : expected.entrySet()) {
-      Method method = entry.getKey();
-      try {
-        assertEquals(entry.getValue(), method.invoke(objectUnderTest));
-      } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-        LOGGER.warn(e.getMessage(), e);
-        fail(e.getMessage());
-      }
+  }
+
+  static Object createObjectWithArguments(Constructor<?> constructor, List<Object> constructorArguments) {
+    try {
+      return constructor.newInstance(constructorArguments.toArray());
+    } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+      throw new IllegalStateException(e);
     }
   }
 
@@ -145,6 +145,13 @@ public class BeanTestHelper {
     constructors.put(Integer.class, BeanTestHelper.SECURE_RANDOM::nextInt);
     constructors.put(Long.class, BeanTestHelper.SECURE_RANDOM::nextLong);
     constructors.put(String.class, BeanTestHelper::getRandomString);
+
+    constructors.put(Timestamp.class, BeanTestHelper::getRandomTimestamp);
+    constructors.put(java.sql.Date.class, BeanTestHelper::getRandomSqlDate);
+    constructors.put(java.util.Date.class, BeanTestHelper::getRandomUtilDate);
+    constructors.put(LocalDate.class, BeanTestHelper::getRandomLocalDate);
+    constructors.put(LocalTime.class, BeanTestHelper::getRandomLocalTime);
+    constructors.put(LocalDateTime.class, BeanTestHelper::getRandomLocalDateTime);
     return constructors;
   }
 
@@ -155,6 +162,40 @@ public class BeanTestHelper {
     return BeanTestHelper.SECURE_RANDOM.ints(size, leftLimit, rightLimit)
         .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
         .toString();
+  }
+
+  private static Timestamp getRandomTimestamp() {
+    long timeInMillis = BeanTestHelper.SECURE_RANDOM.nextLong(0, Long.MAX_VALUE);
+    return new Timestamp(timeInMillis);
+  }
+
+  private static java.util.Date getRandomUtilDate() {
+    long timeInMillis = BeanTestHelper.SECURE_RANDOM.nextLong(0, Long.MAX_VALUE);
+    return new java.util.Date(timeInMillis);
+  }
+
+  private static java.sql.Date getRandomSqlDate() {
+    long timeInMillis = BeanTestHelper.SECURE_RANDOM.nextLong(0, Long.MAX_VALUE);
+    return new java.sql.Date(timeInMillis);
+  }
+
+  private static LocalDate getRandomLocalDate() {
+    int year = BeanTestHelper.SECURE_RANDOM.nextInt(Year.MIN_VALUE, Year.MAX_VALUE);
+    Month month = Month.of(BeanTestHelper.SECURE_RANDOM.nextInt(1, 12));
+    int day = BeanTestHelper.SECURE_RANDOM.nextInt(1, 31);
+    return LocalDate.of(year, month, day);
+  }
+
+  private static LocalTime getRandomLocalTime() {
+    int hour = BeanTestHelper.SECURE_RANDOM.nextInt(0, 23);
+    int minute = BeanTestHelper.SECURE_RANDOM.nextInt(0, 59);
+    int second = BeanTestHelper.SECURE_RANDOM.nextInt(0, 59);
+    int nanoOfSecond = BeanTestHelper.SECURE_RANDOM.nextInt(0, 999999999);
+    return LocalTime.of(hour, minute, second, nanoOfSecond);
+  }
+
+  private static LocalDateTime getRandomLocalDateTime() {
+    return LocalDateTime.of(getRandomLocalDate(), getRandomLocalTime());
   }
 
   private static SecureRandom getSecureRandom() {
