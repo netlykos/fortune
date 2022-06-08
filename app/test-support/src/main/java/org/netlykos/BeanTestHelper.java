@@ -1,0 +1,209 @@
+package org.netlykos;
+
+import static java.lang.String.format;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Month;
+import java.time.Year;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+public class BeanTestHelper {
+
+  private static final SecureRandom SECURE_RANDOM = getSecureRandom();
+  private static final Map<Class<?>, Supplier<Object>> SUPPLIER_CONSTRUCTORS = getSupplierConstructors();
+
+  private BeanTestHelper() {
+    /* do nothing constructor */
+  }
+
+  private static final Logger LOGGER = LogManager.getLogger(BeanTestHelper.class);
+
+  public static List<Bean> testPackage(String packageName) {
+    Set<Class<?>> classesInPackage = findAllClassesUsingClassLoader(packageName);
+    List<Bean> beans = new ArrayList<>();
+    LOGGER.trace("Identified {} beans in package {}", classesInPackage.size(), packageName);
+    for (Class<?> classz : classesInPackage) {
+      if (classz.isRecord()) {
+        beans.add(createRecord(classz));
+      }
+    }
+    return Collections.unmodifiableList(beans);
+  }
+
+  static Set<Class<?>> findAllClassesUsingClassLoader(String packageName) {
+    InputStream stream = ClassLoader.getSystemClassLoader().getResourceAsStream(packageName.replaceAll("[.]", "/"));
+    BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+    return reader.lines()
+        .filter(line -> line.endsWith(".class"))
+        .map(line -> getClass(line, packageName))
+        .collect(Collectors.toSet());
+  }
+
+  static Class<?> getClass(String className, String packageName) {
+    var classPath = format("%s.%s", packageName, className.substring(0, className.lastIndexOf('.')));
+    try {
+      return Class.forName(classPath);
+    } catch (ClassNotFoundException e) {
+      String message = format("Unable to create a class instance of [%s]", classPath);
+      throw new IllegalStateException(message, e);
+    }
+  }
+
+  static Bean createRecord(Class<?> classz) {
+    Constructor<?>[] constructors = classz.getConstructors();
+    LOGGER.trace("Class {} has {} constructors.", classz, constructors.length);
+    if (constructors.length != 1) {
+      LOGGER.warn("Record class {} has multiple constructors which is not supported.", classz);
+      return null;
+    }
+    Constructor<?> constructor = constructors[0];
+    List<BeanProperty> beanProperties = new ArrayList<>();
+    Parameter[] parameters = constructor.getParameters();
+    List<Object> constructorArguments = new ArrayList<>();
+    for (Parameter parameter : parameters) {
+      Type type = parameter.getParameterizedType();
+      Class<?> classType = parameter.getType();
+      Object value = getValue(classType, type);
+      String name = parameter.getName();
+      Method getMethod = getMethodWithName(classz, name);
+      beanProperties.add(new BeanProperty(name, classType, getMethod, null, value));
+      constructorArguments.add(value);
+    }
+    Object self = createObjectWithArguments(constructor, constructorArguments);
+    LOGGER.debug(self);
+    return new Bean(self, beanProperties);
+  }
+
+  static Method getMethodWithName(Class<?> classz, String name, Class<?>... parameterizedType) {
+    try {
+      return classz.getMethod(name, parameterizedType);
+    } catch (NoSuchMethodException | SecurityException e) {
+      // bugger - for a record there should be a public get method
+      throw new IllegalStateException(e);
+    }
+  }
+
+  static Object createObjectWithArguments(Constructor<?> constructor, List<Object> constructorArguments) {
+    try {
+      return constructor.newInstance(constructorArguments.toArray());
+    } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  static Object getValue(Class<?> classz, Type type) {
+    if (Collection.class.isAssignableFrom(classz)) {
+      if (type instanceof ParameterizedType parameterizedType) {
+        LOGGER.info(parameterizedType.getRawType());
+        LOGGER.info(parameterizedType.getActualTypeArguments()[0]);
+      } else {
+        LOGGER.warn("Class {} is of type Collection that is not supported. :(", type);
+      }
+    }
+    Supplier<Object> supplier = BeanTestHelper.SUPPLIER_CONSTRUCTORS.get(classz);
+    if (supplier != null) {
+      return supplier.get();
+    }
+    return null;
+  }
+
+  private static <T> Map<Class<T>, Function<T, Object>> getFunctionConstructors() {
+    return null;
+  }
+
+  private static Map<Class<?>, Supplier<Object>> getSupplierConstructors() {
+    Map<Class<?>, Supplier<Object>> constructors = new HashMap<>();
+    constructors.put(Boolean.class, BeanTestHelper.SECURE_RANDOM::nextBoolean);
+    constructors.put(Double.class, BeanTestHelper.SECURE_RANDOM::nextDouble);
+    constructors.put(Float.class, BeanTestHelper.SECURE_RANDOM::nextFloat);
+    constructors.put(Integer.class, BeanTestHelper.SECURE_RANDOM::nextInt);
+    constructors.put(Long.class, BeanTestHelper.SECURE_RANDOM::nextLong);
+    constructors.put(String.class, BeanTestHelper::getRandomString);
+
+    constructors.put(Timestamp.class, BeanTestHelper::getRandomTimestamp);
+    constructors.put(java.sql.Date.class, BeanTestHelper::getRandomSqlDate);
+    constructors.put(java.util.Date.class, BeanTestHelper::getRandomUtilDate);
+    constructors.put(LocalDate.class, BeanTestHelper::getRandomLocalDate);
+    constructors.put(LocalTime.class, BeanTestHelper::getRandomLocalTime);
+    constructors.put(LocalDateTime.class, BeanTestHelper::getRandomLocalDateTime);
+    return constructors;
+  }
+
+  private static String getRandomString() {
+    int leftLimit = 20; // ' ' the space character
+    int rightLimit = 126; // ~ tilde
+    int size = BeanTestHelper.SECURE_RANDOM.nextInt(20);
+    return BeanTestHelper.SECURE_RANDOM.ints(size, leftLimit, rightLimit)
+        .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+        .toString();
+  }
+
+  private static Timestamp getRandomTimestamp() {
+    long timeInMillis = BeanTestHelper.SECURE_RANDOM.nextLong(0, Long.MAX_VALUE);
+    return new Timestamp(timeInMillis);
+  }
+
+  private static java.util.Date getRandomUtilDate() {
+    long timeInMillis = BeanTestHelper.SECURE_RANDOM.nextLong(0, Long.MAX_VALUE);
+    return new java.util.Date(timeInMillis);
+  }
+
+  private static java.sql.Date getRandomSqlDate() {
+    long timeInMillis = BeanTestHelper.SECURE_RANDOM.nextLong(0, Long.MAX_VALUE);
+    return new java.sql.Date(timeInMillis);
+  }
+
+  private static LocalDate getRandomLocalDate() {
+    int year = BeanTestHelper.SECURE_RANDOM.nextInt(Year.MIN_VALUE, Year.MAX_VALUE);
+    Month month = Month.of(BeanTestHelper.SECURE_RANDOM.nextInt(1, 12));
+    int day = BeanTestHelper.SECURE_RANDOM.nextInt(1, 31);
+    return LocalDate.of(year, month, day);
+  }
+
+  private static LocalTime getRandomLocalTime() {
+    int hour = BeanTestHelper.SECURE_RANDOM.nextInt(0, 23);
+    int minute = BeanTestHelper.SECURE_RANDOM.nextInt(0, 59);
+    int second = BeanTestHelper.SECURE_RANDOM.nextInt(0, 59);
+    int nanoOfSecond = BeanTestHelper.SECURE_RANDOM.nextInt(0, 999999999);
+    return LocalTime.of(hour, minute, second, nanoOfSecond);
+  }
+
+  private static LocalDateTime getRandomLocalDateTime() {
+    return LocalDateTime.of(getRandomLocalDate(), getRandomLocalTime());
+  }
+
+  private static SecureRandom getSecureRandom() {
+    try {
+      return SecureRandom.getInstanceStrong();
+    } catch (NoSuchAlgorithmException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+}

@@ -10,3 +10,4 @@ node {
 }
 
 jar.dependsOn 'yarn_install'
+

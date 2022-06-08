@@ -14,6 +14,16 @@ configurations {
   compileOnly {
     extendsFrom annotationProcessor
   }
+  // configuration to share the test report data to be aggregated for the whole project
+  binaryTestResultsElements {
+    canBeResolved = false
+    canBeConsumed = true
+    attributes {
+      attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.DOCUMENTATION))
+      attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType, 'test-report-data'))
+    }
+    outgoing.artifact(test.binaryResultsDirectory)
+  }
 }
 
 repositories {
@@ -52,15 +62,19 @@ java {
 
 test {
   useJUnitPlatform()
-  // ignore failures until we can get the build working in the environment
+  // ignores failures until we can get the build working in the environment
   // ignoreFailures = false
 
-  // Add 'standardOut' to the event list if you want to see it in the build
-  testLogging.events = ['skipped', 'failed']
+  // Uncomment the below to see the system out and err in the build
+  // testLoggin.showStandardStreams = true
+  testLogging.events = ['passed', 'skipped', 'failed']
   testLogging.exceptionFormat = 'full'
 
   // report is always generated after tests run
   finalizedBy jacocoTestReport
+
+  // don't create individual project html reports
+  reports.html.required = false
 }
 
 jacocoTestReport {
@@ -69,6 +83,7 @@ jacocoTestReport {
   reports {
     xml.enabled true
     csv.enabled false
+    html.enabled true
   }
 }
 
