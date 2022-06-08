@@ -49,9 +49,7 @@ public class BeanTestHelper {
     List<Bean> beans = new ArrayList<>();
     LOGGER.trace("Identified {} beans in package {}", classesInPackage.size(), packageName);
     for (Class<?> classz : classesInPackage) {
-      if (classz.isRecord()) {
-        beans.add(createRecord(classz));
-      }
+      beans.add(createBean(classz));
     }
     return Collections.unmodifiableList(beans);
   }
@@ -73,6 +71,13 @@ public class BeanTestHelper {
       String message = format("Unable to create a class instance of [%s]", classPath);
       throw new IllegalStateException(message, e);
     }
+  }
+
+  static Bean createBean(Class<?> classz) {
+    if (classz.isRecord()) {
+      return createRecord(classz);
+    }
+    return null;
   }
 
   static Bean createRecord(Class<?> classz) {
@@ -134,7 +139,7 @@ public class BeanTestHelper {
   }
 
   private static <T> Map<Class<T>, Function<T, Object>> getFunctionConstructors() {
-    return null;
+    return Collections.emptyMap();
   }
 
   private static Map<Class<?>, Supplier<Object>> getSupplierConstructors() {
