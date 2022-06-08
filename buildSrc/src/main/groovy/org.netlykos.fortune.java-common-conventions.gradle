@@ -5,10 +5,10 @@ plugins {
   id 'jacoco'
   id 'org.sonarqube'
   id 'org.netlykos.fortune.base-conventions'
+  id 'java-library'
  }
 
 group = 'org.netlykos.fortune'
-sourceCompatibility = '17'
 
 configurations {
   compileOnly {
@@ -39,6 +39,14 @@ dependencies {
 
   if (project.name != 'test-support') {
     testImplementation(project(':app:test-support'))
+  }
+}
+
+java {
+  withSourcesJar()
+  toolchain {
+    sourceCompatibility = JavaLanguageVersion.of(17)
+    targetCompatibility = JavaLanguageVersion.of(17)
   }
 }
 
