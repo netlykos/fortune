@@ -1,6 +1,6 @@
 plugins {
-  id 'org.netlykos.fortune.base-conventions'
-  id 'nebula.node'
+  id "org.netlykos.fortune.base-conventions"
+  id "com.github.node-gradle.node"
 }
 
 node {
@@ -8,6 +8,3 @@ node {
   npmVersion = npmVersion
   download = true
 }
-
-jar.dependsOn 'yarn_install'
-

@@ -1,9 +1,10 @@
 plugins {
-  id 'org.netlykos.fortune.npm-build-conventions'
+  id "org.netlykos.fortune.npm-build-conventions"
+  id "java"
 }
 
 jar {
-  from 'dist/web-app' into 'static'
+  from "dist/web-app" into "static"
 }
 
 task serve(type: NpmTask) {

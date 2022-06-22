@@ -3,6 +3,7 @@
 #
 # These are explicitly windows files and should use crlf
 *.bat                                                      text eol=crlf
+/gradlew                                                   text eol=lf
 
 # These are the struct files and are in a binary format
 app/test-support/src/main/resources/fortune/*.dat          binary

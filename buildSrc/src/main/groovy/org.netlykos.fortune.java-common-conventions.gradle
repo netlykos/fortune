@@ -1,11 +1,9 @@
 plugins {
-  id 'eclipse'
-  id 'io.spring.dependency-management'
-  id 'idea'
-  id 'jacoco'
-  id 'org.sonarqube'
-  id 'org.netlykos.fortune.base-conventions'
-  id 'java-library'
+  id "io.spring.dependency-management"
+  id "jacoco"
+  id "java"
+  id "org.sonarqube"
+  id "org.netlykos.fortune.base-conventions"
  }
 
 group = 'org.netlykos.fortune'
@@ -47,8 +45,8 @@ dependencies {
   testImplementation "org.springframework.boot:spring-boot-starter-log4j2"
   testImplementation "org.junit.jupiter:junit-jupiter"
 
-  if (project.name != 'test-support') {
-    testImplementation(project(':app:test-support'))
+  if (project.name != "test-support") {
+    testImplementation(project(":app:test-support"))
   }
 }
 
