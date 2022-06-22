@@ -63,10 +63,10 @@ test {
   // ignores failures until we can get the build working in the environment
   // ignoreFailures = false
 
+  testLogging.events = ["passed", "skipped", "failed"]
+  testLogging.exceptionFormat = "full"
   // Uncomment the below to see the system out and err in the build
-  // testLoggin.showStandardStreams = true
-  testLogging.events = ['passed', 'skipped', 'failed']
-  testLogging.exceptionFormat = 'full'
+  testLogging.showStandardStreams = true
 
   // report is always generated after tests run
   finalizedBy jacocoTestReport

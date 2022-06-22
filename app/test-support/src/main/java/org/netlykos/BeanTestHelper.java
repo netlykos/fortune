@@ -3,6 +3,8 @@ package org.netlykos;
 import static java.lang.String.format;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
@@ -11,6 +13,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.sql.Timestamp;
@@ -22,13 +25,16 @@ import java.time.Year;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,22 +50,67 @@ public class BeanTestHelper {
 
   private static final Logger LOGGER = LogManager.getLogger(BeanTestHelper.class);
 
+  public static List<Bean> testPackage() {
+    StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+    return null;
+  }
+
   public static List<Bean> testPackage(String packageName) {
     Set<Class<?>> classesInPackage = findAllClassesUsingClassLoader(packageName);
     List<Bean> beans = new ArrayList<>();
     LOGGER.trace("Identified {} beans in package {}", classesInPackage.size(), packageName);
     for (Class<?> classz : classesInPackage) {
-      beans.add(createBean(classz));
+      Bean bean = testBean(classz);
+      if (bean == null) {
+        LOGGER.warn("Could not create an instance of {}", classz);
+        continue;
+      }
+      beans.add(bean);
     }
     return Collections.unmodifiableList(beans);
   }
 
+  public static Bean testBean(Class<?> classz) {
+    Bean bean = createBean(classz);
+    if (bean == null) {
+      LOGGER.warn("Could not create an instance of {}", classz);
+      return null;
+    }
+    LOGGER.trace("Testing bean: {}", bean.classz());
+    bean.testBeanAccessors();
+    bean.testToString();
+    bean.testHashCode();
+    return bean;
+  }
+
   static Set<Class<?>> findAllClassesUsingClassLoader(String packageName) {
-    InputStream stream = ClassLoader.getSystemClassLoader().getResourceAsStream(packageName.replaceAll("[.]", "/"));
-    BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-    return reader.lines()
-        .filter(line -> line.endsWith(".class"))
-        .map(line -> getClass(line, packageName))
+    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+    String path = packageName.replaceAll("[.]", "/");
+    try {
+      Enumeration<URL> resources = classLoader.getResources(path);
+      List<File> dirs = new ArrayList<>();
+      while (resources.hasMoreElements()) {
+        URL resource = resources.nextElement();
+        dirs.add(new File(resource.getFile()));
+      }
+      Set<Class<?>> classes = new HashSet<>();
+      for (File directory : dirs) {
+        classes.addAll(findClasses(directory, packageName));
+      }
+      return classes;
+    } catch (IOException ioe) {
+      String message = format("Unable to find resources to iterate over for package name [%s]", packageName);
+      throw new IllegalStateException(message, ioe);
+    }
+  }
+
+  private static Set<Class<?>> findClasses(File directory, String packageName) {
+    if (!directory.exists()) {
+      return Collections.emptySet();
+    }
+    return Stream.of(directory.listFiles())
+        .filter(file -> file.getName().endsWith(".class"))
+        .map(file -> getClass(file.getName(), packageName))
         .collect(Collectors.toSet());
   }
 
@@ -75,6 +126,7 @@ public class BeanTestHelper {
 
   static Bean createBean(Class<?> classz) {
     if (classz.isRecord()) {
+      LOGGER.trace("Class {} is a record.", classz);
       return createRecord(classz);
     }
     return null;
@@ -102,7 +154,7 @@ public class BeanTestHelper {
     }
     Object self = createObjectWithArguments(constructor, constructorArguments);
     LOGGER.debug(self);
-    return new Bean(self, beanProperties);
+    return new Bean(classz, self, beanProperties);
   }
 
   static Method getMethodWithName(Class<?> classz, String name, Class<?>... parameterizedType) {
