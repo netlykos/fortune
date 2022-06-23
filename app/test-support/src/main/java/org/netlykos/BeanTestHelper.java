@@ -2,11 +2,8 @@ package org.netlykos;
 
 import static java.lang.String.format;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -31,8 +28,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -43,6 +40,9 @@ public class BeanTestHelper {
 
   private static final SecureRandom SECURE_RANDOM = getSecureRandom();
   private static final Map<Class<?>, Supplier<Object>> SUPPLIER_CONSTRUCTORS = getSupplierConstructors();
+  private static final Integer CALLER_DEPTH = 3;
+
+  static final Pattern EXCLUDE_TEST_CLASSES = Pattern.compile("^((?!.*Test.class).)*$");
 
   private BeanTestHelper() {
     /* do nothing constructor */
@@ -50,15 +50,26 @@ public class BeanTestHelper {
 
   private static final Logger LOGGER = LogManager.getLogger(BeanTestHelper.class);
 
+  public static List<Bean> testPackageExcludeTests() {
+    return testPackage(getCaller(CALLER_DEPTH).getPackageName(), EXCLUDE_TEST_CLASSES);
+  }
+
   public static List<Bean> testPackage() {
-    StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
-    return null;
+    return testPackage(getCaller(CALLER_DEPTH).getPackageName());
   }
 
   public static List<Bean> testPackage(String packageName) {
-    Set<Class<?>> classesInPackage = findAllClassesUsingClassLoader(packageName);
+    return testPackage(packageName, null);
+  }
+
+  public static List<Bean> testPackage(Pattern excludePattern) {
+    return testPackage(getCaller(CALLER_DEPTH).getPackageName(), excludePattern);
+  }
+
+  public static List<Bean> testPackage(String packageName, Pattern excludePattern) {
+    Set<Class<?>> classesInPackage = findAllClassesUsingClassLoader(packageName, excludePattern);
     List<Bean> beans = new ArrayList<>();
-    LOGGER.trace("Identified {} beans in package {}", classesInPackage.size(), packageName);
+    LOGGER.trace("Identified {} beans in package {} for testing.", classesInPackage.size(), packageName);
     for (Class<?> classz : classesInPackage) {
       Bean bean = testBean(classz);
       if (bean == null) {
@@ -83,7 +94,7 @@ public class BeanTestHelper {
     return bean;
   }
 
-  static Set<Class<?>> findAllClassesUsingClassLoader(String packageName) {
+  static Set<Class<?>> findAllClassesUsingClassLoader(String packageName, Pattern excludePattern) {
     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     String path = packageName.replaceAll("[.]", "/");
     try {
@@ -95,7 +106,7 @@ public class BeanTestHelper {
       }
       Set<Class<?>> classes = new HashSet<>();
       for (File directory : dirs) {
-        classes.addAll(findClasses(directory, packageName));
+        classes.addAll(findClasses(directory, packageName, excludePattern));
       }
       return classes;
     } catch (IOException ioe) {
@@ -104,12 +115,13 @@ public class BeanTestHelper {
     }
   }
 
-  private static Set<Class<?>> findClasses(File directory, String packageName) {
+  private static Set<Class<?>> findClasses(File directory, String packageName, Pattern excludePattern) {
     if (!directory.exists()) {
       return Collections.emptySet();
     }
     return Stream.of(directory.listFiles())
         .filter(file -> file.getName().endsWith(".class"))
+        .filter(file -> excludePattern == null || excludePattern.matcher(file.getName()).matches())
         .map(file -> getClass(file.getName(), packageName))
         .collect(Collectors.toSet());
   }
@@ -177,8 +189,14 @@ public class BeanTestHelper {
   static Object getValue(Class<?> classz, Type type) {
     if (Collection.class.isAssignableFrom(classz)) {
       if (type instanceof ParameterizedType parameterizedType) {
-        LOGGER.info(parameterizedType.getRawType());
-        LOGGER.info(parameterizedType.getActualTypeArguments()[0]);
+        Type collectionType = parameterizedType.getRawType();
+        Type collectionGenericType = parameterizedType.getActualTypeArguments()[0];
+        if (List.class.isAssignableFrom((Class<?>)collectionType)) {
+          return BeanTestHelper.getList((Class<?>)collectionGenericType);
+        }
+        if (Set.class.isAssignableFrom((Class<?>)collectionType)) {
+          return BeanTestHelper.getSet((Class<?>)collectionGenericType);
+        }
       } else {
         LOGGER.warn("Class {} is of type Collection that is not supported. :(", type);
       }
@@ -188,10 +206,6 @@ public class BeanTestHelper {
       return supplier.get();
     }
     return null;
-  }
-
-  private static <T> Map<Class<T>, Function<T, Object>> getFunctionConstructors() {
-    return Collections.emptyMap();
   }
 
   private static Map<Class<?>, Supplier<Object>> getSupplierConstructors() {
@@ -213,11 +227,15 @@ public class BeanTestHelper {
   }
 
   private static String getRandomString() {
-    int leftLimit = 20; // ' ' the space character
-    int rightLimit = 126; // ~ tilde
-    int size = BeanTestHelper.SECURE_RANDOM.nextInt(20);
+    // https://www.w3schools.com/charsets/ref_html_utf8.asp
+    int leftLimit = 32;
+    int rightLimit = 1320;
+    int size = BeanTestHelper.SECURE_RANDOM.nextInt(50);
+
     return BeanTestHelper.SECURE_RANDOM.ints(size, leftLimit, rightLimit)
-        .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+        .filter(Character::isDefined)
+        .mapToObj(Character::toString)
+        .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
         .toString();
   }
 
@@ -253,6 +271,36 @@ public class BeanTestHelper {
 
   private static LocalDateTime getRandomLocalDateTime() {
     return LocalDateTime.of(getRandomLocalDate(), getRandomLocalTime());
+  }
+
+  private static <T> List<T> getList(Class<T> t) {
+    int size = BeanTestHelper.SECURE_RANDOM.nextInt(10);
+    return buildCollection(t, size, new ArrayList<>(size));
+  }
+
+  private static <T> Set<T> getSet(Class<T> t) {
+    int size = BeanTestHelper.SECURE_RANDOM.nextInt(10);
+    return buildCollection(t, size, new HashSet<>(size));
+  }
+
+  private static <C extends Collection<T>, T> C buildCollection(Class<T> t, int size, C collection) {
+    Supplier<Object> supplier = BeanTestHelper.SUPPLIER_CONSTRUCTORS.get(t);
+    if (supplier != null) {
+      for (int i = 0; i < size; i++) {
+        @SuppressWarnings("unchecked")
+        T object = (T) supplier.get();
+        collection.add(object);
+      }
+    }
+    return collection;
+  }
+
+  private static Class<?> getCaller(int depth) {
+    try {
+      return Class.forName(Thread.currentThread().getStackTrace()[depth].getClassName());
+    } catch (ClassNotFoundException e) {
+      throw new IllegalStateException(e.getMessage(), e);
+    }
   }
 
   private static SecureRandom getSecureRandom() {

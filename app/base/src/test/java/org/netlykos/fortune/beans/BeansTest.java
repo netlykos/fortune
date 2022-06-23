@@ -7,7 +7,7 @@ class BeansTest {
 
   @Test
   void test() {
-    BeanTestHelper.testPackage(getClass().getPackageName());
+    BeanTestHelper.testPackageExcludeTests();
   }
 
 }

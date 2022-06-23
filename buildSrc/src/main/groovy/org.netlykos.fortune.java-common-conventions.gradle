@@ -1,4 +1,6 @@
 plugins {
+  id "eclipse"
+  id "idea"
   id "io.spring.dependency-management"
   id "jacoco"
   id "java"
@@ -94,3 +96,16 @@ sonarqube {
   }
 }
 
+eclipse {
+  classpath {
+    downloadJavadoc = true
+    downloadSources = true
+  }
+}
+
+idea {
+  module {
+    downloadJavadoc = true
+    downloadSources = true
+  }
+}

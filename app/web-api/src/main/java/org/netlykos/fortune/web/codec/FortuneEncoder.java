@@ -132,7 +132,7 @@ public class FortuneEncoder implements Encoder<Fortune> {
   }
 
   /**
-   * Escape the following special XML characters < &lt; > &gt; & &amp;
+   * Escape the following special XML characters '<' &lt; '>' &gt; '&' &amp;
    *
    * @param line
    * @return
