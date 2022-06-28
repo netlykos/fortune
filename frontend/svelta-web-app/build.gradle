@@ -1,0 +1,56 @@
+plugins {
+  id "org.netlykos.fortune.npm-build-conventions"
+  id "java"
+  id "distribution"
+}
+
+ext {
+  distDir       = "dist/"
+  webAppDistDir = "${distDir}"
+}
+
+jar {
+  from "${webAppDistDir}" into "static"
+}
+
+task buildWebApp(type: YarnTask) {
+  dependsOn yarn_install
+  // run the npm serve task
+  args = ['run', 'build']
+
+  inputs.dir("src")
+  outputs.dir("${distDir}")
+}
+
+task serveWebApp(type: YarnTask) {
+  // run the npm serve task
+  args = ['run', 'dev']
+}
+
+clean.doLast {
+  delete "${distDir}"
+}
+
+distributions {
+  main {
+    contents {
+      into "/"
+      fileMode 0644
+      from ("${webAppDistDir}") {
+        filter(org.apache.tools.ant.filters.FixCrLfFilter)
+        include "**/*.html", "**/*.js", "**/*.css", "**/*.map", "**/*.json"
+      }
+      from ("${webAppDistDir}") {
+        exclude "**/*.html", "**/*.js", "**/*.css", "**/*.map", "**/*.json"
+      }
+      from(tasks.writeManifestProperties.propertiesFile)
+    }
+  }
+}
+
+distTar {
+  compression = Compression.GZIP
+  archiveExtension = "tar.gz"
+}
+
+[distZip, distTar, jar]*.dependsOn buildWebApp, writeManifestProperties
