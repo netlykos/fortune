@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import reactor.core.publisher.Mono;
+
 @RestController
 public class FortuneController {
 
@@ -54,7 +56,7 @@ public class FortuneController {
          APPLICATION_XHTML_XML_VALUE, TEXT_HTML_VALUE,
          TEXT_PLAIN_VALUE
       })
-  public Fortune fortune(
+  public Mono<Fortune> fortune(
       @PathVariable(required = false) String category,
       @PathVariable(required = false) Integer cookie
   ) {
@@ -63,7 +65,7 @@ public class FortuneController {
     // need to replace "\t" <tabs> with space else the client gets "\t" in their response (in json)
     List<String> lines = fortune.lines();
     List<String> newLines = lines.stream().map(s -> s.replace(TAB, EXPANDED_TAB)).collect(Collectors.toList());
-    return new Fortune(fortune.category(), fortune.number(), newLines);
+    return Mono.just(new Fortune(fortune.category(), fortune.number(), newLines));
   }
 
   // @formatter:off
@@ -75,8 +77,8 @@ public class FortuneController {
          TEXT_PLAIN_VALUE
     })
   // @formatter:on
-  public Collection<FortuneCategory> categories() {
-    return fortuneManagerService.getFortuneCategories();
+  public Mono<Collection<FortuneCategory>> categories() {
+    return Mono.just(fortuneManagerService.getFortuneCategories());
   }
 
   private Fortune getCookie(String category, Integer cookie) {

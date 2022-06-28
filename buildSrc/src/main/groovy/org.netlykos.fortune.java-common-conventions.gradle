@@ -34,6 +34,9 @@ dependencyManagement {
   imports {
     mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
   }
+  dependencies {
+    dependency "org.springdoc:springdoc-openapi-ui:${springDocVersion}"
+  }
 }
 
 dependencies {
