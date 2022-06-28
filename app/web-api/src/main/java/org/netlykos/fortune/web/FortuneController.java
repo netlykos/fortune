@@ -22,11 +22,13 @@ import org.netlykos.fortune.service.FortuneManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import reactor.core.publisher.Mono;
 
 @RestController
+@RequestMapping("/api")
 public class FortuneController {
 
   private static final Logger LOGGER = LogManager.getLogger(FortuneController.class);
@@ -40,11 +42,12 @@ public class FortuneController {
 
   @PostConstruct
   public void init() {
-    LOGGER.info("Injected with {}", fortuneManagerServices);
+    LOGGER.debug("Injected with {}", fortuneManagerServices);
     if (fortuneManagerServices.isEmpty()) {
       throw new IllegalStateException("Expected at least one instance of a fortune manager to be available for use.");
     }
     this.fortuneManagerService = fortuneManagerServices.get(0);
+    LOGGER.info("Selected: {}", this.fortuneManagerService);
   }
 
   // @formatter:off

@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(classes = FileFortuneManagerService.class, properties = {
-    "org.netlykos.fortune.directory=../test-support/src/main/resources/file-library/success/fortune" })
+    "org.netlykos.fortune.fileFortuneManagerService.directory=../test-support/src/main/resources/file-library/success/fortune" })
 @TestMethodOrder(OrderAnnotation.class)
 class FileFortuneManagerServiceTest {
 

@@ -50,7 +50,7 @@ public class FileFortuneManagerService implements FortuneManagerService {
   private static final int FORTUNE_PADDING = 3; // every fortune is padded by '\n%\n'
   private static final int MAX_BUFFER_SIZE = 4096;
 
-  @Value("${org.netlykos.fortune.directory:/fortune}")
+  @Value("${org.netlykos.fortune.fileFortuneManagerService.directory:/fortune}")
   String fortuneDirectory;
 
   private Map<String, FortuneFileRecord> fortuneResources;

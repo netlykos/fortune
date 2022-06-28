@@ -1,0 +1,22 @@
+@url = http://localhost:8080
+
+GET {{url}}/api/categories
+accept: application/xml
+
+
+####
+GET {{url}}/api/categories
+accept: application/xml
+
+
+####
+GET {{url}}/api/fortune
+accept: application/json
+
+
+####
+GET {{url}}/api/fortune
+accept: application/xml
+
+
+####
