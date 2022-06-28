@@ -1,5 +1,5 @@
 rootProject.name = 'fortune'
-include 'frontend:web-app',
+include 'frontend:ng-web-app',
   'app:app',
   'app:base',
   'app:file-library',

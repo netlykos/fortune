@@ -68,6 +68,6 @@ node_modules/
 Thumbs.db
 
 # Web development
-frontend/web-app/.angular
-frontend/web-app/dist
+frontend/ng-web-app/.angular
+frontend/ng-web-app/dist
 
