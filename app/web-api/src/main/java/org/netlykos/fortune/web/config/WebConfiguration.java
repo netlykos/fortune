@@ -1,31 +1,42 @@
 package org.netlykos.fortune.web.config;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_XHTML_XML;
+import static org.springframework.http.MediaType.APPLICATION_XML;
+import static org.springframework.http.MediaType.TEXT_HTML;
+import static org.springframework.http.MediaType.TEXT_PLAIN;
+import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.MediaType.*;
+import static org.springframework.web.reactive.function.server.ServerResponse.*;
+import static org.springframework.web.reactive.function.server.RequestPredicates.*;
+import static org.springframework.web.reactive.function.server.RouterFunctions.*;
+
+import java.util.Map;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.netlykos.fortune.beans.Fortune;
 import org.netlykos.fortune.web.codec.FortuneEncoder;
-import org.springdoc.core.GroupedOpenApi;
-import org.springframework.beans.factory.annotation.Value;
+import org.netlykos.fortune.web.service.FortuneService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
+import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
 
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.info.License;
+import reactor.core.publisher.Mono;
 
 @Configuration
 public class WebConfiguration {
 
-  @Value("${org.netlykos.fortune.webConfiguration.title:Fortune}")
-  String title;
+  private static final Logger LOGGER = LogManager.getLogger(WebConfiguration.class);
 
-  @Value("${org.netlykos.fortune.webConfiguration.description:Fortune application Web API's specification}")
-  String description;
-
-  @Value("${org.netlykos.fortune.webConfiguration.license:BSD license}")
-  String license;
-
-  @Value("${org.netlykos.fortune.webConfiguration.url:http://routecvt01.netlykos.org/}")
-  String url;
+  public static final String HTTP_HEADER_X_REASON = "x-failure-reason";
+  public static final String HTTP_HEADER_X_FORTUNE_CATEGORY = "x-fortune-category";
+  public static final String HTTP_HEADER_X_FORTUNE_COOKIE = "x-fortune-cookie";
 
   @Bean
   WebFluxConfigurer webFluxConfigurer() {
@@ -38,23 +49,40 @@ public class WebConfiguration {
   }
 
   @Bean
-  public OpenAPI springShopOpenAPI() {
-    return new OpenAPI()
-        .info(new Info()
-            .title(title)
-            .description(description)
-            .version("v0.0.1")
-            .license(new License()
-                .name(license)
-                .url(url)));
+  RouterFunction<ServerResponse> routes(FortuneService fortuneService) {
+    return route()
+        .path("/api/fortune", b1 -> b1
+            .nest(contentType(fortuneProduces()), b2 -> b2
+                .GET("/{category}/{cookie:[\\d]+}", request -> processFortuneRequest(request, fortuneService))
+                .GET("/{category}", request -> processFortuneRequest(request, fortuneService))
+                .GET("/", request -> processFortuneRequest(request, fortuneService))
+                .GET("", request -> processFortuneRequest(request, fortuneService))))
+        .build();
   }
 
-  @Bean
-  public GroupedOpenApi publicApi() {
-    return GroupedOpenApi.builder()
-        .group("fortune")
-        .pathsToMatch("/api/**")
-        .build();
+  private static Mono<ServerResponse> processFortuneRequest(ServerRequest request, FortuneService fortuneService) {
+    Map<String, String> pathVariables = request.pathVariables();
+    String category = pathVariables.getOrDefault("category", null);
+    String cookieString = pathVariables.getOrDefault("cookie", null);
+    Integer cookie = cookieString == null ? null : Integer.valueOf(cookieString);
+    try {
+      Fortune fortune = fortuneService.getFortune(category, cookie);
+      return ok()
+          .header(HTTP_HEADER_X_FORTUNE_CATEGORY, fortune.category())
+          .header(HTTP_HEADER_X_FORTUNE_COOKIE, String.valueOf(fortune.number()))
+          .bodyValue(fortune);
+    } catch (IllegalArgumentException e) {
+      String message = e.getMessage();
+      LOGGER.warn(message, e);
+      return status(NOT_FOUND)
+          .header(HTTP_HEADER_X_REASON, message)
+          .bodyValue(message);
+    }
+  }
+
+  private static MediaType[] fortuneProduces() {
+    return new MediaType[] { APPLICATION_XML, TEXT_XML, APPLICATION_JSON, APPLICATION_XHTML_XML, TEXT_HTML,
+        TEXT_PLAIN };
   }
 
 }
