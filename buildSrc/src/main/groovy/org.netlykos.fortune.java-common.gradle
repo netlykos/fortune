@@ -5,7 +5,7 @@ plugins {
   id "jacoco"
   id "java"
   id "org.sonarqube"
-  id "org.netlykos.fortune.base-conventions"
+  id "org.netlykos.fortune.base"
  }
 
 group = 'org.netlykos.fortune'

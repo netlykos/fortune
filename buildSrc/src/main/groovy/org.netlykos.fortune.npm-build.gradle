@@ -1,5 +1,5 @@
 plugins {
-  id "org.netlykos.fortune.base-conventions"
+  id "org.netlykos.fortune.base"
   id "com.github.node-gradle.node"
 }
 

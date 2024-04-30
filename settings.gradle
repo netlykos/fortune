@@ -1,8 +1,8 @@
 rootProject.name = 'fortune'
 include 'frontend:ng-web-app',
   'frontend:svelta-web-app',
-  'app:app',
   'app:base',
   'app:file-library',
   'app:spring-web',
+  'app:spring-boot-app',
   'app:test-support'
