@@ -13,8 +13,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.netlykos.fortune.beans.Fortune;
@@ -31,10 +29,12 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.PostConstruct;
 import reactor.core.publisher.Mono;
 
+
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/mvc")
 @Tag(name = "fortune", description = "fortune cookie APIs")
 public class FortuneController {
 

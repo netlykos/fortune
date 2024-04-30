@@ -36,10 +36,7 @@ dependencyManagement {
     mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
   }
   dependencies {
-    dependency "org.springdoc:springdoc-openapi-ui:${springDocVersion}"
-    dependency "org.springdoc:springdoc-openapi-webflux-ui:${springDocVersion}"
-    dependency "org.springdoc:springdoc-openapi-security:${springDocVersion}"
-    dependency "org.springdoc:springdoc-openapi-native:${springDocVersion}"
+    dependency "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}"
   }
 }
 
@@ -47,6 +44,8 @@ dependencies {
   annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
   implementation "org.apache.logging.log4j:log4j-api"
+  implementation "jakarta.inject:jakarta.inject-api:${jakartaInjectApiVersion}"
+  implementation "jakarta.annotation:jakarta.annotation-api:${jakartaAnnotationApiVersion}"
 
   testImplementation "org.springframework.boot:spring-boot-starter-test"
   testImplementation "org.springframework.boot:spring-boot-starter-log4j2"
@@ -60,8 +59,8 @@ dependencies {
 java {
   withSourcesJar()
   toolchain {
-    sourceCompatibility = JavaLanguageVersion.of(17)
-    targetCompatibility = JavaLanguageVersion.of(17)
+    sourceCompatibility = JavaLanguageVersion.of(21)
+    targetCompatibility = JavaLanguageVersion.of(21)
   }
 }
 
@@ -79,16 +78,14 @@ test {
   finalizedBy jacocoTestReport
 
   // don't create individual project html reports
-  reports.html.required = false
-}
-
-jacocoTestReport {
-   // tests are required to run before generating the report
-  dependsOn test
   reports {
-    xml.enabled true
-    csv.enabled false
-    html.enabled true
+    junitXml {
+      outputPerTestCase = true // defaults to false
+      mergeReruns = true // defaults to false
+    }
+    html {
+      required = true
+    }
   }
 }
 

@@ -12,6 +12,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -23,20 +25,26 @@ import org.netlykos.fortune.beans.Fortune;
 import org.netlykos.fortune.beans.FortuneCategory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest(classes = FileFortuneManagerService.class, properties = {
-    "org.netlykos.fortune.fileFortuneManagerService.directory=../test-support/src/main/resources/file-library/success/fortune" })
 @TestMethodOrder(OrderAnnotation.class)
 class FileFortuneManagerServiceTest {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FileFortuneManagerServiceTest.class);
 
   private String defaultCategory = "art";
+  private FileFortuneManagerService fortuneManagerService;
 
-  @Autowired
-  FileFortuneManagerService fortuneManagerService;
+  @BeforeEach
+  void setup() {
+    System.setProperty(FileFortuneManagerService.FILE_FORTUNE_MANAGER_SERVICE_FORTUNE_DIRECTORY_PROPERTY_NAME, "../test-support/src/main/resources/file-library/success/fortune");
+    fortuneManagerService = new FileFortuneManagerService();
+    fortuneManagerService.init();
+  }
+
+  @AfterEach
+  void teardown() {
+    System.clearProperty(FileFortuneManagerService.FILE_FORTUNE_MANAGER_SERVICE_FORTUNE_DIRECTORY_PROPERTY_NAME);
+  }
 
   @Test
   @Order(1)
@@ -159,8 +167,8 @@ class FileFortuneManagerServiceTest {
   void testFileFortuneManagerServiceBadFortuneDirectory() {
     String directory = "some/unknown/directory";
     String expected = format("Failed to find any resource at path [%s]", directory);
+    System.setProperty(FileFortuneManagerService.FILE_FORTUNE_MANAGER_SERVICE_FORTUNE_DIRECTORY_PROPERTY_NAME, directory);
     FileFortuneManagerService fileFortuneManagerService = new FileFortuneManagerService();
-    fileFortuneManagerService.fortuneDirectory = directory;
     IllegalArgumentException actual = assertThrows(IllegalArgumentException.class, fileFortuneManagerService::init);
     assertEquals(expected, actual.getMessage());
   }
@@ -169,8 +177,8 @@ class FileFortuneManagerServiceTest {
   void testFileFortuneManagerServiceBadDirectoryContents() {
     String directory = "../test-support/src/main/resources/file-library/failure/struct-data-but-no-content";
     String expected = format("Failed to find any resource at path [%s/%s]", directory, defaultCategory);
+    System.setProperty(FileFortuneManagerService.FILE_FORTUNE_MANAGER_SERVICE_FORTUNE_DIRECTORY_PROPERTY_NAME, directory);
     FileFortuneManagerService fileFortuneManagerService = new FileFortuneManagerService();
-    fileFortuneManagerService.fortuneDirectory = directory;
     IllegalArgumentException actual = assertThrows(IllegalArgumentException.class, fileFortuneManagerService::init);
     LOGGER.debug(actual.getMessage(), actual);
     assertEquals(expected, actual.getMessage());
@@ -179,8 +187,8 @@ class FileFortuneManagerServiceTest {
   @Test
   void testFileFortuneManagerServicedInvalidDirectoryContents() {
     String directory = "../test-support/src/main/resources/file-library/failure/struct-data-invalid-content";
+    System.setProperty(FileFortuneManagerService.FILE_FORTUNE_MANAGER_SERVICE_FORTUNE_DIRECTORY_PROPERTY_NAME, directory);
     FileFortuneManagerService fileFortuneManagerService = new FileFortuneManagerService();
-    fileFortuneManagerService.fortuneDirectory = directory;
     fileFortuneManagerService.init();
     Collection<FortuneCategory> fortuneCategories = fileFortuneManagerService.getFortuneCategories();
     LOGGER.debug("{}", fortuneCategories);

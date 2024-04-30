@@ -1,7 +1,5 @@
 package org.netlykos.fortune.file.service;
 
-import static java.lang.String.format;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -25,19 +23,21 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.netlykos.fortune.beans.Fortune;
 import org.netlykos.fortune.beans.FortuneCategory;
 import org.netlykos.fortune.file.beans.FortuneFileRecord;
 import org.netlykos.fortune.service.FortuneManagerService;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.netlykos.fortune.utilities.PropertyUtility;
 
-@Service
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Named;
+
+@Named
 public class FileFortuneManagerService implements FortuneManagerService {
+
+  public static final String FILE_FORTUNE_MANAGER_SERVICE_FORTUNE_DIRECTORY_PROPERTY_NAME = "org.netlykos.fortune.fileFortuneManagerService.directory";
 
   private static final Logger LOGGER = LogManager.getLogger(FileFortuneManagerService.class);
   private static final SecureRandom RANDOM = getSecureRandomInstance();
@@ -46,12 +46,13 @@ public class FileFortuneManagerService implements FortuneManagerService {
   private static final String NEW_LINE = System.getProperty("line.separator");
   private static final String UNIX_NEW_LINE = "\\n";
   private static final String PATH_SEPARATOR = "/";
+  @java.lang.SuppressWarnings("squid:S1075")
+  private static final String DEFAULT_FORTUNE_DIRECTORY_PATH = "/fortune";
   private static final int EOF = -1; // end of file marker
   private static final int FORTUNE_PADDING = 3; // every fortune is padded by '\n%\n'
   private static final int MAX_BUFFER_SIZE = 4096;
 
-  @Value("${org.netlykos.fortune.fileFortuneManagerService.directory:/fortune}")
-  String fortuneDirectory;
+  private String fortuneDirectory = PropertyUtility.getPropertyValueOrDefault(FILE_FORTUNE_MANAGER_SERVICE_FORTUNE_DIRECTORY_PROPERTY_NAME, DEFAULT_FORTUNE_DIRECTORY_PATH);
 
   private Map<String, FortuneFileRecord> fortuneResources;
   private List<String> fortunes;
@@ -70,8 +71,8 @@ public class FileFortuneManagerService implements FortuneManagerService {
               LOGGER.debug("Read {} in directory {}", line, fortuneDirectory);
               if (line.endsWith(DAT_FILE_SUFFIX)) {
                 String cookieName = line.replace(DAT_FILE_SUFFIX, "");
-                String structFilePath = format("%s%s%s", fortuneDirectory, PATH_SEPARATOR, line);
-                String dataFilePath = format("%s%s%s", fortuneDirectory, PATH_SEPARATOR, cookieName);
+                String structFilePath = "%s%s%s".formatted(fortuneDirectory, PATH_SEPARATOR, line);
+                String dataFilePath = "%s%s%s".formatted(fortuneDirectory, PATH_SEPARATOR, cookieName);
                 byte[] structFileContent = getResourceContent(structFilePath);
                 byte[] dataFileContent = getResourceContent(dataFilePath);
                 if (!isValidFortuneFiles(dataFileContent, structFileContent)) {
@@ -98,7 +99,7 @@ public class FileFortuneManagerService implements FortuneManagerService {
     int cookieOffset = cookie - 1;
     LOGGER.debug("Looking for cookie # {}, offset {} from category {}", cookie, cookieOffset, category);
     if (!this.fortunes.contains(category)) {
-      throw new IllegalArgumentException(format("Category %s is not setup.", category));
+      throw new IllegalArgumentException("Category %s is not setup.".formatted(category));
     }
     FortuneFileRecord structFile = fortuneResources.get(category);
     Integer totalRecords = structFile.totalRecords();
@@ -107,7 +108,7 @@ public class FileFortuneManagerService implements FortuneManagerService {
       throw new IllegalArgumentException("Cookie number should be positive.");
     }
     if (cookie > totalRecords) {
-      throw new IllegalArgumentException(format("Category %s only contains %d cookie(s).", category, totalRecords));
+      throw new IllegalArgumentException("Category %s only contains %d cookie(s).".formatted(category, totalRecords));
     }
     return getCookieNumberFromRecord(structFile, cookieOffset);
   }
@@ -122,7 +123,7 @@ public class FileFortuneManagerService implements FortuneManagerService {
   public Fortune getRandomFortuneFromCategory(String category) {
     LOGGER.debug("Looking for cookie in category {}", category);
     if (!this.fortunes.contains(category)) {
-      throw new IllegalArgumentException(format("No fortunes for category [%s] available.", category));
+      throw new IllegalArgumentException("No fortunes for category [%s] available.".formatted(category));
     }
     return getRandomCookieFromCategory(category);
   }
@@ -131,7 +132,7 @@ public class FileFortuneManagerService implements FortuneManagerService {
   public FortuneCategory getFortuneCategory(String category) {
     FortuneFileRecord fortuneFileRecord = this.fortuneResources.get(category);
     if (fortuneFileRecord == null) {
-      throw new IllegalArgumentException(format("Category %s is not setup.", category));
+      throw new IllegalArgumentException("Category %s is not setup.".formatted(category));
     }
     return new FortuneCategory(category, fortuneFileRecord.totalRecords());
   }
@@ -177,7 +178,7 @@ public class FileFortuneManagerService implements FortuneManagerService {
     }
     InputStream inputStream = FileFortuneManagerService.class.getResourceAsStream(resourcePath);
     if (inputStream == null) {
-      throw new IllegalArgumentException(format("Failed to find any resource at path [%s]", resourcePath));
+      throw new IllegalArgumentException("Failed to find any resource at path [%s]".formatted(resourcePath));
     }
     try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
       byte[] buffer = new byte[MAX_BUFFER_SIZE];
@@ -216,7 +217,7 @@ public class FileFortuneManagerService implements FortuneManagerService {
     if (structFileContent == null) {
       return false;
     }
-    return dataFileContent.length > 0 && structFileContent.length > 23 ;
+    return dataFileContent.length > 0 && structFileContent.length > 23;
   }
 
 }

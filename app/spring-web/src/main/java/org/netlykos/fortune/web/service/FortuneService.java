@@ -2,8 +2,6 @@ package org.netlykos.fortune.web.service;
 
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.netlykos.fortune.beans.Fortune;
@@ -11,12 +9,16 @@ import org.netlykos.fortune.service.FortuneManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+
+@Named
 public class FortuneService {
 
   private static final Logger LOGGER = LogManager.getLogger(FortuneService.class);
 
-  @Autowired
+  @Inject
   List<FortuneManagerService> fortuneManagerServices;
   private FortuneManagerService fortuneManagerService;
 

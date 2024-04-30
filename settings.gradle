@@ -4,5 +4,5 @@ include 'frontend:ng-web-app',
   'app:app',
   'app:base',
   'app:file-library',
-  'app:web-api',
+  'app:spring-web',
   'app:test-support'

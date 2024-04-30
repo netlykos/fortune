@@ -33,7 +33,4 @@ dependencies {
   implementation("org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:${sonarqubeGradlePluginVersion}")
   // id "org.springframework.boot" version "2.5.3"
   implementation("org.springframework.boot:spring-boot-gradle-plugin:${springBootGradlePluginVersion}")
-  // id "org.springframework.boot" version "2.5.3"
-  implementation("org.springframework.boot:spring-boot-gradle-plugin:${springBootGradlePluginVersion}")
 }
-

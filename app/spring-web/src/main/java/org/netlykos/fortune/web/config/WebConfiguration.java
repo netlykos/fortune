@@ -51,7 +51,7 @@ public class WebConfiguration {
   @Bean
   RouterFunction<ServerResponse> routes(FortuneService fortuneService) {
     return route()
-        .path("/api/fortune", b1 -> b1
+        .path("/api/flux/fortune", b1 -> b1
             .nest(contentType(fortuneProduces()), b2 -> b2
                 .GET("/{category}/{cookie:[\\d]+}", request -> processFortuneRequest(request, fortuneService))
                 .GET("/{category}", request -> processFortuneRequest(request, fortuneService))
