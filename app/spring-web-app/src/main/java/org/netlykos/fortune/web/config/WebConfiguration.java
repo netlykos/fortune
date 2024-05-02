@@ -40,6 +40,7 @@ public class WebConfiguration {
 
   @Bean
   WebFluxConfigurer webFluxConfigurer() {
+    LOGGER.debug("Registering WebFluxConfigurer.");
     return new WebFluxConfigurer() {
       @Override
       public void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
@@ -52,11 +53,12 @@ public class WebConfiguration {
   RouterFunction<ServerResponse> routes(FortuneService fortuneService) {
     return route()
         .path("/api/flux/fortune", b1 -> b1
-            .nest(contentType(fortuneProduces()), b2 -> b2
-                .GET("/{category}/{cookie:[\\d]+}", request -> processFortuneRequest(request, fortuneService))
-                .GET("/{category}", request -> processFortuneRequest(request, fortuneService))
-                .GET("/", request -> processFortuneRequest(request, fortuneService))
-                .GET("", request -> processFortuneRequest(request, fortuneService))))
+            .nest(accept(MediaType.ALL), b2 -> b2
+                .nest(contentType(fortuneProduces()), b3 -> b3
+                    .GET("/{category}/{cookie:[\\d]+}", request -> processFortuneRequest(request, fortuneService))
+                    .GET("/{category}", request -> processFortuneRequest(request, fortuneService))
+                    .GET("/", request -> processFortuneRequest(request, fortuneService))
+                    .GET("", request -> processFortuneRequest(request, fortuneService)))))
         .build();
   }
 

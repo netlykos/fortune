@@ -1,8 +1,9 @@
 rootProject.name = 'fortune'
-include 'frontend:ng-web-app',
+include \
+  'frontend:ng-web-app',
   'frontend:svelta-web-app',
   'app:base',
   'app:file-library',
-  'app:spring-web',
-  'app:spring-boot-app',
+  'app:spring-web-app',
+  'app:quarkus-web-app',
   'app:test-support'

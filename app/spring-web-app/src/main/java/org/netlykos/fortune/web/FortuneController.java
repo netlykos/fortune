@@ -18,7 +18,6 @@ import org.apache.logging.log4j.Logger;
 import org.netlykos.fortune.beans.Fortune;
 import org.netlykos.fortune.beans.FortuneCategory;
 import org.netlykos.fortune.service.FortuneManagerService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,8 +29,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.PostConstruct;
-import reactor.core.publisher.Mono;
-
+import jakarta.inject.Inject;
 
 @RestController
 @RequestMapping("/api/mvc")
@@ -42,7 +40,7 @@ public class FortuneController {
   private static final String TAB = "\t";
   private static final String EXPANDED_TAB = "    ";
 
-  @Autowired
+  @Inject
   List<FortuneManagerService> fortuneManagerServices;
 
   FortuneManagerService fortuneManagerService;
@@ -82,7 +80,7 @@ public class FortuneController {
          APPLICATION_XHTML_XML_VALUE, TEXT_HTML_VALUE,
          TEXT_PLAIN_VALUE
       })
-  public Mono<Fortune> fortune(
+  public Fortune fortune(
       @PathVariable(name = "category", required = false) String category,
       @PathVariable(name = "cookie", required = false) Integer cookie
   ) {
@@ -91,7 +89,7 @@ public class FortuneController {
     // need to replace "\t" <tabs> with space else the client gets "\t" in their response (in json)
     List<String> lines = fortune.lines();
     List<String> newLines = lines.stream().map(s -> s.replace(TAB, EXPANDED_TAB)).collect(Collectors.toList());
-    return Mono.just(new Fortune(fortune.category(), fortune.number(), newLines));
+    return new Fortune(fortune.category(), fortune.number(), newLines);
   }
 
   // @formatter:off
@@ -103,8 +101,8 @@ public class FortuneController {
          TEXT_PLAIN_VALUE
     })
   // @formatter:on
-  public Mono<Collection<FortuneCategory>> categories() {
-    return Mono.just(fortuneManagerService.getFortuneCategories());
+  public Collection<FortuneCategory> categories() {
+    return fortuneManagerService.getFortuneCategories();
   }
 
   private Fortune getCookie(String category, Integer cookie) {

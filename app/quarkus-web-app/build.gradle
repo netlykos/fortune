@@ -1,10 +1,18 @@
 plugins {
-  id "org.netlykos.fortune.spring-boot-application"
+  id "org.netlykos.fortune.quarkus-application"
 }
 
 dependencies {
   implementation project(":app:base")
   implementation project(":app:file-library")
   implementation "org.springframework.boot:spring-boot-starter"
+
   testImplementation "org.springframework.boot:spring-boot-devtools"
+}
+
+quarkusBuild {
+  nativeArgs {
+    containerBuild = true
+    builderImage = "quay.io/quarkus/ubi-quarkus-mandrel-builder-image:jdk-21"
+  }
 }
