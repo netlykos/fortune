@@ -27,14 +27,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.netlykos.fortune.beans.Fortune;
 import org.netlykos.fortune.beans.FortuneCategory;
+import org.netlykos.fortune.exception.FortuneNotFoundException;
 import org.netlykos.fortune.file.beans.FortuneFileRecord;
 import org.netlykos.fortune.service.FortuneManagerService;
 import org.netlykos.fortune.utilities.PropertyUtility;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.inject.Named;
-
-@Named
 public class FileFortuneManagerService implements FortuneManagerService {
 
   public static final String FILE_FORTUNE_MANAGER_SERVICE_FORTUNE_DIRECTORY_PROPERTY_NAME = "org.netlykos.fortune.fileFortuneManagerService.directory";
@@ -57,8 +54,7 @@ public class FileFortuneManagerService implements FortuneManagerService {
   private Map<String, FortuneFileRecord> fortuneResources;
   private List<String> fortunes;
 
-  @PostConstruct
-  void init() {
+  public FileFortuneManagerService() {
     Map<String, FortuneFileRecord> resources = new HashMap<>();
     LOGGER.debug("Looking for data files in {}", fortuneDirectory);
     try {
@@ -99,16 +95,16 @@ public class FileFortuneManagerService implements FortuneManagerService {
     int cookieOffset = cookie - 1;
     LOGGER.debug("Looking for cookie # {}, offset {} from category {}", cookie, cookieOffset, category);
     if (!this.fortunes.contains(category)) {
-      throw new IllegalArgumentException("Category %s is not setup.".formatted(category));
+      throw new FortuneNotFoundException("Category %s is not setup.".formatted(category));
     }
     FortuneFileRecord structFile = fortuneResources.get(category);
     Integer totalRecords = structFile.totalRecords();
     LOGGER.debug("For category {}, total records {}", category, totalRecords);
     if (cookieOffset < 0) {
-      throw new IllegalArgumentException("Cookie number should be positive.");
+      throw new FortuneNotFoundException("Cookie number should be positive.");
     }
     if (cookie > totalRecords) {
-      throw new IllegalArgumentException("Category %s only contains %d cookie(s).".formatted(category, totalRecords));
+      throw new FortuneNotFoundException("Category %s only contains %d cookie(s).".formatted(category, totalRecords));
     }
     return getCookieNumberFromRecord(structFile, cookieOffset);
   }
@@ -123,7 +119,7 @@ public class FileFortuneManagerService implements FortuneManagerService {
   public Fortune getRandomFortuneFromCategory(String category) {
     LOGGER.debug("Looking for cookie in category {}", category);
     if (!this.fortunes.contains(category)) {
-      throw new IllegalArgumentException("No fortunes for category [%s] available.".formatted(category));
+      throw new FortuneNotFoundException("No fortunes for category [%s] available.".formatted(category));
     }
     return getRandomCookieFromCategory(category);
   }
@@ -132,7 +128,7 @@ public class FileFortuneManagerService implements FortuneManagerService {
   public FortuneCategory getFortuneCategory(String category) {
     FortuneFileRecord fortuneFileRecord = this.fortuneResources.get(category);
     if (fortuneFileRecord == null) {
-      throw new IllegalArgumentException("Category %s is not setup.".formatted(category));
+      throw new FortuneNotFoundException("Category %s is not setup.".formatted(category));
     }
     return new FortuneCategory(category, fortuneFileRecord.totalRecords());
   }
@@ -178,7 +174,7 @@ public class FileFortuneManagerService implements FortuneManagerService {
     }
     InputStream inputStream = FileFortuneManagerService.class.getResourceAsStream(resourcePath);
     if (inputStream == null) {
-      throw new IllegalArgumentException("Failed to find any resource at path [%s]".formatted(resourcePath));
+      throw new IllegalStateException("Failed to find any resource at path [%s]".formatted(resourcePath));
     }
     try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
       byte[] buffer = new byte[MAX_BUFFER_SIZE];
@@ -221,3 +217,4 @@ public class FileFortuneManagerService implements FortuneManagerService {
   }
 
 }
+

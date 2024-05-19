@@ -37,6 +37,9 @@ dependencyManagement {
   }
   dependencies {
     dependency "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}"
+    dependency "org.springdoc:springdoc-openapi-starter-webmvc-api:${springDocVersion}"
+    dependency "org.springdoc:springdoc-openapi-starter-webflux-api:${springDocVersion}"
+    dependency "org.springdoc:springdoc-openapi-starter-webflux-ui:${springDocVersion}"
   }
 }
 

@@ -38,7 +38,6 @@ class FileFortuneManagerServiceTest {
   void setup() {
     System.setProperty(FileFortuneManagerService.FILE_FORTUNE_MANAGER_SERVICE_FORTUNE_DIRECTORY_PROPERTY_NAME, "../test-support/src/main/resources/file-library/success/fortune");
     fortuneManagerService = new FileFortuneManagerService();
-    fortuneManagerService.init();
   }
 
   @AfterEach
@@ -168,8 +167,7 @@ class FileFortuneManagerServiceTest {
     String directory = "some/unknown/directory";
     String expected = format("Failed to find any resource at path [%s]", directory);
     System.setProperty(FileFortuneManagerService.FILE_FORTUNE_MANAGER_SERVICE_FORTUNE_DIRECTORY_PROPERTY_NAME, directory);
-    FileFortuneManagerService fileFortuneManagerService = new FileFortuneManagerService();
-    IllegalArgumentException actual = assertThrows(IllegalArgumentException.class, fileFortuneManagerService::init);
+    IllegalArgumentException actual = assertThrows(IllegalArgumentException.class, FileFortuneManagerService::new);
     assertEquals(expected, actual.getMessage());
   }
 
@@ -178,8 +176,7 @@ class FileFortuneManagerServiceTest {
     String directory = "../test-support/src/main/resources/file-library/failure/struct-data-but-no-content";
     String expected = format("Failed to find any resource at path [%s/%s]", directory, defaultCategory);
     System.setProperty(FileFortuneManagerService.FILE_FORTUNE_MANAGER_SERVICE_FORTUNE_DIRECTORY_PROPERTY_NAME, directory);
-    FileFortuneManagerService fileFortuneManagerService = new FileFortuneManagerService();
-    IllegalArgumentException actual = assertThrows(IllegalArgumentException.class, fileFortuneManagerService::init);
+    IllegalArgumentException actual = assertThrows(IllegalArgumentException.class, FileFortuneManagerService::new);
     LOGGER.debug(actual.getMessage(), actual);
     assertEquals(expected, actual.getMessage());
   }
@@ -189,7 +186,6 @@ class FileFortuneManagerServiceTest {
     String directory = "../test-support/src/main/resources/file-library/failure/struct-data-invalid-content";
     System.setProperty(FileFortuneManagerService.FILE_FORTUNE_MANAGER_SERVICE_FORTUNE_DIRECTORY_PROPERTY_NAME, directory);
     FileFortuneManagerService fileFortuneManagerService = new FileFortuneManagerService();
-    fileFortuneManagerService.init();
     Collection<FortuneCategory> fortuneCategories = fileFortuneManagerService.getFortuneCategories();
     LOGGER.debug("{}", fortuneCategories);
     assertTrue(fortuneCategories.isEmpty());

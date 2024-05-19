@@ -4,6 +4,7 @@ include \
   'frontend:svelta-web-app',
   'app:base',
   'app:file-library',
-  'app:spring-web-app',
+  'app:spring-webflux-app',
+  'app:spring-webmvc-app',
   'app:quarkus-web-app',
   'app:test-support'

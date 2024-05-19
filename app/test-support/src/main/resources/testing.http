@@ -1,0 +1,33 @@
+@url = http://localhost:8080
+
+####
+GET {{url}}/api/fortune
+accept: text/html
+
+####
+GET {{url}}/api/fortune
+accept: text/plain
+
+####
+GET {{url}}/api/fortune
+accept: application/xhtml+xml
+
+####
+GET {{url}}/api/fortune
+accept: application/xml
+
+####
+GET {{url}}/api/fortune/goedel/1
+accept: application/xml
+
+####
+GET {{url}}/api/fortune
+accept: application/json
+
+
+####
+GET {{url}}/actuator/mappings
+
+####
+GET {{url}}/actuator/beans
+
