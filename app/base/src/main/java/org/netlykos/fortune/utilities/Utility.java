@@ -8,10 +8,6 @@ public class Utility {
     /** do nothing constructor */
   }
 
-  public static boolean isPopulated(String s) {
-    return s != null && !s.isBlank();
-  }
-
   public static boolean isNull(Object ... objects) {
     if (objects == null) {
       return true;
@@ -22,6 +18,10 @@ public class Utility {
       }
     }
     return false;
+  }
+
+  public static boolean isPopulated(String s) {
+    return s != null && !s.isBlank();
   }
 
   public static void notNull(Object object, String message, Object... messageArgs) {

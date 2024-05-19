@@ -13,11 +13,6 @@ public class PropertyUtility {
     /** do nothing constructor */
   }
 
-  public static String getPropertyValueOrDefault(String propertyName, String defaultValue) {
-    String value = getPropertyValue(propertyName);
-    return isPopulated(value) ? value : defaultValue;
-  }
-
   public static String getPropertyValue(String propertyName) {
     LOGGER.trace("Looking up value for Property {}", propertyName);
     String value = System.getenv(propertyName);
@@ -31,6 +26,11 @@ public class PropertyUtility {
       return value;
     }
     return null;
+  }
+
+  public static String getPropertyValueOrDefault(String propertyName, String defaultValue) {
+    String value = getPropertyValue(propertyName);
+    return isPopulated(value) ? value : defaultValue;
   }
 
 }
