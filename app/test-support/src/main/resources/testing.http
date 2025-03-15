@@ -17,13 +17,28 @@ GET {{url}}/api/fortune
 accept: application/xml
 
 ####
-GET {{url}}/api/fortune/goedel/1
+GET {{url}}/api/fortune/pratchett/3 HTTP/2
 accept: application/xml
 
 ####
-GET {{url}}/api/fortune
+GET {{url}}/api/fortune/pratchett/2 HTTP/2
 accept: application/json
 
+####
+GET {{url}}/api/categories HTTP/2
+accept: application/xml
+
+####
+GET {{url}}/api/categories HTTP/2
+accept: application/json
+
+####
+GET {{url}}/api/fortune HTTP/2
+accept: application/json
+
+
+####
+GET {{url}}/actuator
 
 ####
 GET {{url}}/actuator/mappings

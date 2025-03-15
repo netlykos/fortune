@@ -1,5 +1,5 @@
 plugins {
   // The release plugin needs to in this section instead of 'src/main/groovy/org.netlykos.fortune.base-conventions.gradle'
   // if we keep it there, the build fails
-  id "nebula.release" version "16.0.0"
+  id "nebula.release" version "20.1.0"
 }

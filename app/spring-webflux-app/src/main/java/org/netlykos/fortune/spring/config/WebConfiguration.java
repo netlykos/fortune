@@ -8,6 +8,12 @@ import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 
+/**
+ * @author @netlykos (Adi B)
+ *
+ *         Configuration class to support controller.
+ *
+ */
 @Configuration
 @EnableWebFlux
 public class WebConfiguration implements WebFluxConfigurer {

@@ -68,6 +68,5 @@ node_modules/
 Thumbs.db
 
 # Web development
-frontend/ng-web-app/.angular
-frontend/ng-web-app/dist
-
+frontend/mithril-web-app/dist
+frontend/mithril-web-app/yarn.lock

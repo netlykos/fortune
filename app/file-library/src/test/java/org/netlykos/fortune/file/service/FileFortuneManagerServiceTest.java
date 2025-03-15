@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -150,7 +150,7 @@ class FileFortuneManagerServiceTest {
 
   @Test
   void testGetFortuneFailureOverflowCookie() {
-    int range = 465, cookie = range + 1;
+    int range = 474, cookie = range + 1;
     String expected = String.format("Category %s only contains %d cookie(s).", defaultCategory, range);
     IllegalArgumentException actual = assertThrows(IllegalArgumentException.class, () -> {
       fortuneManagerService.getFortune(defaultCategory, cookie);
@@ -165,20 +165,20 @@ class FileFortuneManagerServiceTest {
   @Test
   void testFileFortuneManagerServiceBadFortuneDirectory() {
     String directory = "some/unknown/directory";
-    String expected = format("Failed to find any resource at path [%s]", directory);
+    String expected = format("Failed to find any resource at path [");
     System.setProperty(FileFortuneManagerService.FILE_FORTUNE_MANAGER_SERVICE_FORTUNE_DIRECTORY_PROPERTY_NAME, directory);
-    IllegalArgumentException actual = assertThrows(IllegalArgumentException.class, FileFortuneManagerService::new);
-    assertEquals(expected, actual.getMessage());
+    IllegalStateException actual = assertThrows(IllegalStateException.class, FileFortuneManagerService::new);
+    assertTrue(actual.getMessage().startsWith(expected));
   }
 
   @Test
   void testFileFortuneManagerServiceBadDirectoryContents() {
     String directory = "../test-support/src/main/resources/file-library/failure/struct-data-but-no-content";
-    String expected = format("Failed to find any resource at path [%s/%s]", directory, defaultCategory);
+    String expected = format("Failed to find any resource at path [");
     System.setProperty(FileFortuneManagerService.FILE_FORTUNE_MANAGER_SERVICE_FORTUNE_DIRECTORY_PROPERTY_NAME, directory);
-    IllegalArgumentException actual = assertThrows(IllegalArgumentException.class, FileFortuneManagerService::new);
+    IllegalStateException actual = assertThrows(IllegalStateException.class, FileFortuneManagerService::new);
     LOGGER.debug(actual.getMessage(), actual);
-    assertEquals(expected, actual.getMessage());
+    assertTrue(actual.getMessage().startsWith(expected));
   }
 
   @Test

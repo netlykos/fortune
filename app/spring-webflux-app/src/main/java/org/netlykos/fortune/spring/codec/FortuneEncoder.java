@@ -115,27 +115,19 @@ public class FortuneEncoder implements Encoder<Fortune> {
     String line = f.lines().stream().map(l -> "<line>%s</line>".formatted(escapeXmlCharacters(l))).collect(joining());
     StringBuilder sb = new StringBuilder()
         .append(XML_PREAMBLE)
-        .append("<fortune category=\"%s\" number=\"%d\">".formatted(f.category(), f.number())).append("<lines>")
+        .append("<fortune category=\"%s\" number=\"%d\">".formatted(f.category(), f.number()))
+        .append("<lines>")
         .append(line)
-        .append("</lines>").append("</fortune>");
+        .append("</lines>")
+        .append("</fortune>");
     return sb.toString();
   }
 
   private static String getJson(Fortune f) {
-    return """
-          {
-            "fortune": {
-              "category": "%s",
-              "number": %d,
-              "lines": [
-                %s
-              ]
-            }
-          }
-        """.formatted(
+    return "{ \"category\": \"%s\", \"number\": %d, \"lines\": [ %s ] }".formatted(
         f.category(),
         f.number(),
-        f.lines().stream().map("\"%s\""::formatted).collect(joining(",", "      ", "")));
+        f.lines().stream().map(l -> "\"%s\"".formatted(escapeJsonStrings(l))).collect(joining(",", "    ", "")));
   }
 
   private static String getHtmlFragment(Fortune f) {
@@ -148,6 +140,10 @@ public class FortuneEncoder implements Encoder<Fortune> {
         .append("</p>")
         .append("</div>");
     return sb.toString();
+  }
+
+  private static String escapeJsonStrings(String s) {
+    return s.replace("\"", "\\\"");
   }
 
 }

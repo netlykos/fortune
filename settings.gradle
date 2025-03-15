@@ -1,7 +1,6 @@
 rootProject.name = 'fortune'
 include \
-  'frontend:ng-web-app',
-  'frontend:svelta-web-app',
+  'frontend:mithril-web-app',
   'app:base',
   'app:file-library',
   'app:spring-webflux-app',
