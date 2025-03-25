@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
@@ -34,7 +33,7 @@ import org.netlykos.fortune.utilities.PropertyUtility;
 
 public class FileFortuneManagerService implements FortuneManagerService {
 
-  public static final String FILE_FORTUNE_MANAGER_SERVICE_FORTUNE_DIRECTORY_PROPERTY_NAME = "org.netlykos.fortune.fileFortuneManagerService.directory";
+  public static final String FILE_FORTUNE_MANAGER_SERVICE_FORTUNE_DIRECTORY_PROPERTY_NAME = "ORG_NETLYKOS_FORTUNE_FILE_FORTUNE_MANAGER_SERVICE_DIRECTORY";
 
   private static final Logger LOGGER = LogManager.getLogger(FileFortuneManagerService.class);
   private static final SecureRandom RANDOM = getSecureRandomInstance();
@@ -43,13 +42,13 @@ public class FileFortuneManagerService implements FortuneManagerService {
   private static final String NEW_LINE = System.getProperty("line.separator");
   private static final String UNIX_NEW_LINE = "\\n";
   private static final String PATH_SEPARATOR = "/";
-  @java.lang.SuppressWarnings("squid:S1075")
   private static final String DEFAULT_FORTUNE_DIRECTORY_PATH = "/fortune";
   private static final int EOF = -1; // end of file marker
   private static final int FORTUNE_PADDING = 3; // every fortune is padded by '\n%\n'
   private static final int MAX_BUFFER_SIZE = 4096;
 
-  private String fortuneDirectory = PropertyUtility.getPropertyValueOrDefault(FILE_FORTUNE_MANAGER_SERVICE_FORTUNE_DIRECTORY_PROPERTY_NAME, DEFAULT_FORTUNE_DIRECTORY_PATH);
+  private String fortuneDirectory = PropertyUtility.getPropertyValueOrDefault(
+      FILE_FORTUNE_MANAGER_SERVICE_FORTUNE_DIRECTORY_PROPERTY_NAME, DEFAULT_FORTUNE_DIRECTORY_PATH);
 
   private Map<String, FortuneFileRecord> fortuneResources;
   private List<String> fortunes;
@@ -135,9 +134,7 @@ public class FileFortuneManagerService implements FortuneManagerService {
 
   @Override
   public Collection<FortuneCategory> getFortuneCategories() {
-    return this.fortuneResources.entrySet().stream()
-        .map(e -> new FortuneCategory(e.getKey(), e.getValue().totalRecords()))
-        .collect(Collectors.toList());
+    return this.fortuneResources.entrySet().stream().map(FileFortuneManagerService::fortuneCategory).toList();
   }
 
   private Fortune getRandomCookieFromCategory(String category) {
@@ -216,5 +213,8 @@ public class FileFortuneManagerService implements FortuneManagerService {
     return dataFileContent.length > 0 && structFileContent.length > 23;
   }
 
-}
+  private static FortuneCategory fortuneCategory(Map.Entry<String, FortuneFileRecord> entry) {
+    return new FortuneCategory(entry.getKey(), entry.getValue().totalRecords());
+  }
 
+}

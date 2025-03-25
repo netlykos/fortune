@@ -1,4 +1,4 @@
-package org.netlykos.fortune;
+package org.netlykos;
 
 import static org.netlykos.fortune.file.service.FileFortuneManagerService.FILE_FORTUNE_MANAGER_SERVICE_FORTUNE_DIRECTORY_PROPERTY_NAME;
 

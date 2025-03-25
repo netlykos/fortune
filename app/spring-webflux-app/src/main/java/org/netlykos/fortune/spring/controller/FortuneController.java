@@ -142,7 +142,7 @@ public class FortuneController {
     // need to replace "\t" <tabs> with space else the client gets "\t" in the
     // response
     List<String> lines = fortune.lines();
-    List<String> newLines = lines.stream().map(s -> s.replace(TAB, EXPANDED_TAB)).collect(Collectors.toList());
+    List<String> newLines = lines.stream().map(s -> s.replace(TAB, EXPANDED_TAB)).toList();
     return ResponseEntity.ok()
         .header(HTTP_HEADER_X_FORTUNE_CATEGORY, fortune.category())
         .header(HTTP_HEADER_X_FORTUNE_COOKIE, String.valueOf(fortune.number()))
