@@ -5,13 +5,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -23,13 +25,11 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.netlykos.fortune.beans.Fortune;
 import org.netlykos.fortune.beans.FortuneCategory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @TestMethodOrder(OrderAnnotation.class)
 class FileFortuneManagerServiceTest {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(FileFortuneManagerServiceTest.class);
+  private static final Logger LOGGER = LogManager.getLogger(FileFortuneManagerServiceTest.class);
 
   private String defaultCategory = "art";
   private FileFortuneManagerService fortuneManagerService;

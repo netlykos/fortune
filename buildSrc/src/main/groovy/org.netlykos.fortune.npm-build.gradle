@@ -8,4 +8,3 @@ node {
   npmVersion = "${npmVersion}"
   download = true
 }
-

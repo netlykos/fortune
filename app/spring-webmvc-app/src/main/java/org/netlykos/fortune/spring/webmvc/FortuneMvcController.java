@@ -9,9 +9,11 @@ import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.http.MediaType.TEXT_XML_VALUE;
 
+import static org.netlykos.fortune.base.web.WebConstants.EXPANDED_TAB;
+import static org.netlykos.fortune.base.web.WebConstants.TAB;
+
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,13 +35,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.PostConstruct;
 
 @RestController
-@RequestMapping("/api/mvc")
+@RequestMapping(FortuneMvcController.API_ENDPOINT)
 @Tag(name = "fortune", description = "fortune cookie APIs")
-public class FortuneController {
+public class FortuneMvcController {
 
-  private static final Logger LOGGER = LogManager.getLogger(FortuneController.class);
-  private static final String TAB = "\t";
-  private static final String EXPANDED_TAB = "    ";
+  private static final Logger LOGGER = LogManager.getLogger(FortuneMvcController.class);
+
+  public static final String API_ENDPOINT = "/api/webmvc";
 
   FortuneManagerService fortuneManagerService;
 
@@ -84,7 +86,7 @@ public class FortuneController {
     Fortune fortune = this.fortuneManagerService.getFortune(category, cookie);
     // need to replace "\t" <tabs> with space else the client gets "\t" in their response (in json)
     List<String> lines = fortune.lines();
-    List<String> newLines = lines.stream().map(s -> s.replace(TAB, EXPANDED_TAB)).collect(Collectors.toList());
+    List<String> newLines = lines.stream().map(s -> s.replace(TAB, EXPANDED_TAB)).toList();
     return new Fortune(fortune.category(), fortune.number(), newLines);
   }
 

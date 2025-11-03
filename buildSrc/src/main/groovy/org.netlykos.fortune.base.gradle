@@ -2,4 +2,3 @@ plugins {
   id "com.netflix.nebula.info"
   // id 'nebula.release'
 }
-

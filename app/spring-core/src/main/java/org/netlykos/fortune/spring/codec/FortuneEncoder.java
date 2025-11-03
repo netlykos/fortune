@@ -4,20 +4,13 @@ import static java.util.stream.Collectors.joining;
 import static org.netlykos.fortune.utilities.Utility.isNull;
 import static org.netlykos.fortune.utilities.Utility.notNull;
 import static org.netlykos.fortune.utilities.XMLUtilities.escapeXmlCharacters;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_XHTML_XML;
 import static org.springframework.http.MediaType.APPLICATION_XHTML_XML_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_XML;
 import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
-import static org.springframework.http.MediaType.TEXT_HTML;
 import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
-import static org.springframework.http.MediaType.TEXT_PLAIN;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
-import static org.springframework.http.MediaType.TEXT_XML;
 import static org.springframework.http.MediaType.TEXT_XML_VALUE;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,18 +29,9 @@ import org.springframework.util.MimeType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class FortuneEncoder implements Encoder<Fortune> {
+public class FortuneEncoder extends BaseEncoder implements Encoder<Fortune> {
 
   private static final Logger LOGGER = LogManager.getLogger(FortuneEncoder.class);
-  private static final String NEW_LINE = System.getProperty("line.separator");
-  private static final String BR = "<br />";
-  private static final String XML_PREAMBLE = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>";
-
-  private List<MimeType> encodableMimeTypes = Arrays.asList(
-      APPLICATION_XML, TEXT_XML,
-      APPLICATION_JSON,
-      APPLICATION_XHTML_XML, TEXT_HTML,
-      TEXT_PLAIN);
 
   @Override
   public boolean canEncode(ResolvableType elementType, MimeType mimeType) {
@@ -59,7 +43,7 @@ public class FortuneEncoder implements Encoder<Fortune> {
     if (!Fortune.class.isAssignableFrom(cls)) {
       return false;
     }
-    return this.encodableMimeTypes.stream().anyMatch(candidate -> candidate.isCompatibleWith(mimeType));
+    return BaseEncoder.encodableMimeTypes.stream().anyMatch(candidate -> candidate.isCompatibleWith(mimeType));
   }
 
   @Override
@@ -89,7 +73,7 @@ public class FortuneEncoder implements Encoder<Fortune> {
 
   @Override
   public List<MimeType> getEncodableMimeTypes() {
-    return this.encodableMimeTypes;
+    return BaseEncoder.encodableMimeTypes;
   }
 
   public static String getContent(Fortune fortune, String contentType) {
@@ -140,10 +124,6 @@ public class FortuneEncoder implements Encoder<Fortune> {
         .append("</p>")
         .append("</div>");
     return sb.toString();
-  }
-
-  private static String escapeJsonStrings(String s) {
-    return s.replace("\"", "\\\"");
   }
 
 }

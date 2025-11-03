@@ -1,0 +1,13 @@
+plugins {
+  id "org.netlykos.fortune.java-library"
+}
+
+dependencies {
+  implementation project(":app:base")
+  implementation "org.springframework:spring-core"
+  implementation "org.springframework:spring-web"
+  implementation "io.projectreactor:reactor-core"
+
+  testImplementation "org.springframework:spring-test"
+  testImplementation "org.mockito:mockito-core"
+}

@@ -5,4 +5,3 @@ plugins {
   // Apply the quarkus plugin to add support for building a quarkus application
   id "io.quarkus"
 }
-

@@ -10,7 +10,6 @@ import static org.springframework.http.MediaType.TEXT_XML_VALUE;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,11 +42,11 @@ import jakarta.annotation.PostConstruct;
  *         This is a restful endpoint for the fortune controller.
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping(FortuneFluxController.API_ENDPOINT)
 @Tag(name = "fortune", description = "Fortune cookie APIs")
-public class FortuneController {
+public class FortuneFluxController {
 
-  private static final Logger LOGGER = LogManager.getLogger(FortuneController.class);
+  private static final Logger LOGGER = LogManager.getLogger(FortuneFluxController.class);
   private static final String TAB = "\t";
   private static final String EXPANDED_TAB = "        ";
   private static final String EXAMPLE_APPLICATION_JSON = """
@@ -97,6 +96,7 @@ public class FortuneController {
   public static final String HTTP_HEADER_X_REASON = "x-failure-reason";
   public static final String HTTP_HEADER_X_FORTUNE_CATEGORY = "x-fortune-category";
   public static final String HTTP_HEADER_X_FORTUNE_COOKIE = "x-fortune-cookie";
+  public static final String API_ENDPOINT = "/api/webflux";
 
   FortuneManagerService fortuneManagerService;
 

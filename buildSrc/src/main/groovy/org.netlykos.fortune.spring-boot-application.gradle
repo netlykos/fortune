@@ -5,4 +5,3 @@ plugins {
   // Apply the spring boot plugin to add support for building spring boot applications
   id "org.springframework.boot"
 }
-

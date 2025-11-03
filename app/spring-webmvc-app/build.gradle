@@ -4,7 +4,9 @@ plugins {
 
 dependencies {
   implementation project(":app:base")
+  implementation project(":app:base-web")
   implementation project(":app:file-library")
+  implementation project(":app:spring-core")
 
   implementation "jakarta.annotation:jakarta.annotation-api"
   implementation "jakarta.inject:jakarta.inject-api"
@@ -16,4 +18,5 @@ dependencies {
   implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui"
 
   testImplementation "org.springframework.boot:spring-boot-devtools"
+  testImplementation "org.springframework.boot:spring-boot-starter-test"
 }

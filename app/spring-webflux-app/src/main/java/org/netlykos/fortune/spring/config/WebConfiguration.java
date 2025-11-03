@@ -2,6 +2,7 @@ package org.netlykos.fortune.spring.config;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.netlykos.fortune.spring.codec.FortuneCategoryEncoder;
 import org.netlykos.fortune.spring.codec.FortuneEncoder;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.codec.ServerCodecConfigurer;
@@ -24,6 +25,7 @@ public class WebConfiguration implements WebFluxConfigurer {
   public void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
     LOGGER.debug("Registering WebFluxConfigurer.");
     configurer.customCodecs().register(new FortuneEncoder());
+    configurer.customCodecs().register(new FortuneCategoryEncoder());
   }
 
 }

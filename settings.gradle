@@ -2,8 +2,10 @@ rootProject.name = 'fortune'
 include \
   'frontend:mithril-web-app',
   'app:base',
+  'app:base-web',
   'app:file-library',
+  'app:spring-core',
   'app:spring-webflux-app',
   'app:spring-webmvc-app',
-  'app:quarkus-web-app',
+  // 'app:quarkus-web-app',
   'app:test-support'
