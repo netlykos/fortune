@@ -1,7 +1,9 @@
 plugins {
-  id "org.netlykos.fortune.java-library"
+  id "org.netlykos.fortune.java-base"
+  id "java-test-fixtures"
 }
 
 dependencies {
-  implementation "org.junit.jupiter:junit-jupiter"
+  testFixturesImplementation "org.apache.logging.log4j:log4j-api"
+  testFixturesImplementation "org.junit.jupiter:junit-jupiter"
 }

@@ -1,19 +1,10 @@
 plugins {
-  id "eclipse"
-  id "idea"
-  id "io.spring.dependency-management"
+  id "org.netlykos.fortune.java-base"
   id "jacoco"
-  id "java"
   id "org.sonarqube"
-  id "org.netlykos.fortune.base"
- }
-
-group = 'org.netlykos.fortune'
+}
 
 configurations {
-  compileOnly {
-    extendsFrom annotationProcessor
-  }
   // configuration to share the test report data to be aggregated for the whole project
   binaryTestResultsElements {
     canBeResolved = false
@@ -23,24 +14,6 @@ configurations {
       attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType, 'test-report-data'))
     }
     outgoing.artifact(test.binaryResultsDirectory)
-  }
-  all*.exclude module : 'spring-boot-starter-logging'
-}
-
-repositories {
-  mavenCentral()
-}
-
-dependencyManagement {
-  imports {
-    mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
-    mavenBom "io.quarkus:quarkus-bom:${quarkusVersion}"
-  }
-  dependencies {
-    dependency "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}"
-    dependency "org.springdoc:springdoc-openapi-starter-webmvc-api:${springDocVersion}"
-    dependency "org.springdoc:springdoc-openapi-starter-webflux-api:${springDocVersion}"
-    dependency "org.springdoc:springdoc-openapi-starter-webflux-ui:${springDocVersion}"
   }
 }
 
@@ -55,17 +28,7 @@ dependencies {
   testImplementation "org.junit.jupiter:junit-jupiter"
   testImplementation "org.apache.logging.log4j:log4j-core"
 
-  if (project.name != "test-support") {
-    testImplementation(project(":app:test-support"))
-  }
-}
-
-java {
-  withSourcesJar()
-  toolchain {
-    sourceCompatibility = JavaLanguageVersion.of(21)
-    targetCompatibility = JavaLanguageVersion.of(21)
-  }
+  testImplementation(testFixtures(project(":app:test-support")))
 }
 
 test {
@@ -102,16 +65,3 @@ sonarqube {
   }
 }
 
-eclipse {
-  classpath {
-    downloadJavadoc = true
-    downloadSources = true
-  }
-}
-
-idea {
-  module {
-    downloadJavadoc = true
-    downloadSources = true
-  }
-}

@@ -15,4 +15,4 @@ npm install --save-dev vite
 
 ## References
 
-[mithril-ts-vite-starter](https://github.com/ArthurClemens/mithril-ts-vite-starter
+[mithril-ts-vite-starter](https://github.com/ArthurClemens/mithril-ts-vite-starter)

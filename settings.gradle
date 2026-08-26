@@ -7,5 +7,4 @@ include \
   'app:spring-core',
   'app:spring-webflux-app',
   'app:spring-webmvc-app',
-  // 'app:quarkus-web-app',
   'app:test-support'

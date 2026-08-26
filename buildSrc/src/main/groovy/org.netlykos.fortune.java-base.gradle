@@ -1,0 +1,55 @@
+plugins {
+  id "eclipse"
+  id "idea"
+  id "io.spring.dependency-management"
+  id "java"
+  id "org.netlykos.fortune.base"
+}
+
+group = 'org.netlykos.fortune'
+
+configurations {
+  compileOnly {
+    extendsFrom annotationProcessor
+  }
+  all*.exclude module : 'spring-boot-starter-logging'
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencyManagement {
+  imports {
+    mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
+    mavenBom "io.quarkus:quarkus-bom:${quarkusVersion}"
+  }
+  dependencies {
+    dependency "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}"
+    dependency "org.springdoc:springdoc-openapi-starter-webmvc-api:${springDocVersion}"
+    dependency "org.springdoc:springdoc-openapi-starter-webflux-api:${springDocVersion}"
+    dependency "org.springdoc:springdoc-openapi-starter-webflux-ui:${springDocVersion}"
+  }
+}
+
+java {
+  withSourcesJar()
+  toolchain {
+    sourceCompatibility = JavaLanguageVersion.of(21)
+    targetCompatibility = JavaLanguageVersion.of(21)
+  }
+}
+
+eclipse {
+  classpath {
+    downloadJavadoc = true
+    downloadSources = true
+  }
+}
+
+idea {
+  module {
+    downloadJavadoc = true
+    downloadSources = true
+  }
+}

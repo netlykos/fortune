@@ -3,6 +3,9 @@
 # Log file
 *.log
 
+# Project specific environment setup
+.setenv
+
 # BlueJ files
 *.ctxt
 
