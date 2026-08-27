@@ -10,15 +10,24 @@ option java_outer_classname = "FortuneServiceProto";
 option java_package = "org.netlykos.fortune.grpc";
 
 service FortuneService {
-  rpc GetFortune(GetFortuneRequest) returns (Fortune);
+  rpc GetFortune(stream GetFortuneRequest) returns (stream GetFortuneResponse);
   rpc GetCategories(GetCategoriesRequest) returns (GetCategoriesResponse);
 }
 
 message GetFortuneRequest {
+  // the request identifier, returned in the response
+  string identifier = 1;
   // When omitted, a random category is selected.
-  optional string category = 1;
+  optional string category = 2;
   // When omitted, a random fortune is selected from the category.
-  optional int32 cookie = 2;
+  optional int32 cookie = 3;
+}
+
+message GetFortuneResponse {
+  // the request identifier, returned in the response
+  string identifier = 1;
+  // the generated fortune
+  org.netlykos.fortune.Fortune fortune = 2;
 }
 
 message GetCategoriesRequest {}
