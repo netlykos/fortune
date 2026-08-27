@@ -4,6 +4,7 @@ include \
   'app:base',
   'app:base-web',
   'app:file-library',
+  'app:grpc-api',
   'app:spring-core',
   'app:spring-webflux-app',
   'app:spring-webmvc-app',

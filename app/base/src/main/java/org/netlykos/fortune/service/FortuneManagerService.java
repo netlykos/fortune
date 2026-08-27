@@ -8,13 +8,13 @@ import org.netlykos.fortune.exception.FortuneNotFoundException;
 
 public interface FortuneManagerService {
 
-  public Fortune getFortune(String category, int cookie);
-  public Fortune getRandomFortune();
-  public Fortune getRandomFortuneFromCategory(String category);
-  public FortuneCategory getFortuneCategory(String category);
-  public Collection<FortuneCategory> getFortuneCategories();
+  Fortune getFortune(String category, int cookie);
+  Fortune getRandomFortune();
+  Fortune getRandomFortuneFromCategory(String category);
+  FortuneCategory getFortuneCategory(String category);
+  Collection<FortuneCategory> getFortuneCategories();
 
-  public default Fortune getFortune(String category, Integer cookie)
+  default Fortune getFortune(String category, Integer cookie)
     throws FortuneNotFoundException
   {
     if (category != null) {

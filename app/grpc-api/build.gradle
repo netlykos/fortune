@@ -1,0 +1,26 @@
+plugins {
+  id "build.buf"
+  id "org.netlykos.fortune.java-base"
+}
+
+dependencies {
+  implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+  implementation "io.grpc:grpc-stub:${grpcVersion}"
+  implementation "javax.annotation:javax.annotation-api:${javaxAnnotationApiVersion}"
+}
+
+sourceSets {
+  main {
+    java {
+      srcDir "${buildDir}/bufbuild/generated/java"
+    }
+    resources {
+      srcDir "${buildDir}/bufbuild/generated/js"
+      srcDir "src/main/proto"
+    }
+  }
+}
+
+compileJava.dependsOn bufGenerate
+sourcesJar.dependsOn bufGenerate
+processResources.dependsOn bufGenerate

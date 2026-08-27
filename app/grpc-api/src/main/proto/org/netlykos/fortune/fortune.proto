@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package org.netlykos.fortune;
+
+option java_multiple_files = true;
+option java_outer_classname = "FortuneProto";
+option java_package = "org.netlykos.fortune.grpc";
+
+message Fortune {
+  string category = 1;
+  int32 number = 2;
+  repeated string lines = 3;
+}

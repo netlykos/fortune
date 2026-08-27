@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package org.netlykos.fortune;
+
+option java_multiple_files = true;
+option java_outer_classname = "FortuneCategoryProto";
+option java_package = "org.netlykos.fortune.grpc";
+
+message FortuneCategory {
+  string category = 1;
+  int32 total_records = 2;
+}

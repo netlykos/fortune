@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package org.netlykos.fortune;
+
+import "org/netlykos/fortune/fortune.proto";
+import "org/netlykos/fortune/fortune_category.proto";
+
+option java_multiple_files = true;
+option java_outer_classname = "FortuneServiceProto";
+option java_package = "org.netlykos.fortune.grpc";
+
+service FortuneService {
+  rpc GetFortune(GetFortuneRequest) returns (Fortune);
+  rpc GetCategories(GetCategoriesRequest) returns (GetCategoriesResponse);
+}
+
+message GetFortuneRequest {
+  // When omitted, a random category is selected.
+  optional string category = 1;
+  // When omitted, a random fortune is selected from the category.
+  optional int32 cookie = 2;
+}
+
+message GetCategoriesRequest {}
+
+message GetCategoriesResponse {
+  repeated FortuneCategory categories = 1;
+}

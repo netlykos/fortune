@@ -1,0 +1,16 @@
+# Buf configuration version.
+version: v2
+
+lint:
+  use:
+    - MINIMAL
+
+# Modules included in the workspace. Each entry declares the directory
+# containing its `.proto` files and, optionally, the module's BSR name,
+# files or directories to exclude, and module-level lint and
+# breaking-change settings.
+#
+# Paths and include/exclude patterns are relative to the workspace root.
+modules:
+  - path: src/main/proto
+    name: buf.build/org/netlykos
