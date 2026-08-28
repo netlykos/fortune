@@ -81,7 +81,9 @@ class FortuneMvcControllerTest {
   }
 
   private String getUrl(String contextPath) {
-    return "http://localhost:%d%s%s".formatted(port, FortuneMvcController.API_ENDPOINT, contextPath);
+    String url = "http://localhost:%d%s%s".formatted(port, FortuneMvcController.API_ENDPOINT, contextPath);
+    LOGGER.debug("URL: {}", url);
+    return url;
   }
 
 }
